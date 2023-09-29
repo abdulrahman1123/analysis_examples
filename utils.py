@@ -64,7 +64,7 @@ def choose_model(model, c_type = 'best', plot_result = True):
         raise Warning("c_type can only be set to 'best' or 'par'")
 
 
-def model_performance(model,X_test,y_test):
+def model_performance(model,X_test,y_test, col_names):
     """
     Print the coefficients and compute accuracy
     :param model: the model to be tested
@@ -74,7 +74,7 @@ def model_performance(model,X_test,y_test):
     print('Coefficients:')
     coefs = [model.intercept_[0]] + list(model.coef_[0])
     coefs = [str(np.round(item,3)) if item!=0 else "-" for item in coefs]
-    coef_names = ['intercept'] + list(data.columns[1:-1])
+    coef_names = ['intercept'] + list(col_names)[1:-1]
     coefficients = pd.DataFrame(coefs, index=coef_names,columns=['value'])
     print(coefficients)
     print('\n Scores:')
