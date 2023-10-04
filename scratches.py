@@ -12,24 +12,20 @@ sub1 = X[X_dist<30]
 sub2 = X[X_dist>45]
 X = np.append(sub1,sub2,axis = 0)
 y = np.array([1]*len(sub1)+[-1]*len(sub2))
-color = ['steelblue']*len(sub1)+['chocolate']*len(sub2)
+color = ['steelblue']*len(sub1)+['crimson']*len(sub2)
 
-fontbold2 = {'family': 'cambria',
-                 'size': 18}
+fontbold2 = {'family': 'cambria','size': 18}
 
-spec = matplotlib.gridspec.GridSpec(ncols=3, nrows=1,
-                         width_ratios=[2,3,2], wspace=0.2,
-                         hspace=0.1)
-
+spec = matplotlib.gridspec.GridSpec(nrows=7, ncols=4, wspace=0.2, hspace=0.1)
 
 fig = plt.figure()
 fig.set_figwidth(14)
-ax = fig.add_subplot(spec[0])
+ax = fig.add_subplot(spec[1:6, 0])
 plt.scatter(X[:,0],X[:,1], c=color, s = 60, edgecolors='black', linewidth=0.7)
 ax.set_xlabel("$x_1$", font = fontbold2)
 ax.set_ylabel("$x_2$", font = fontbold2)
 
-ax = fig.add_subplot(spec[1],projection = '3d')
+ax = fig.add_subplot(spec[:, 1:3],projection = '3d')
 ax.scatter(X[:,0],X[:,1],X[:,0]**2+X[:,1]**2, c=color, s = 60, edgecolors='black', linewidth = 1)
 ax.set_xlabel("$x_1$", font = fontbold2)
 ax.set_ylabel("$x_2$", font = fontbold2)
@@ -54,10 +50,13 @@ ax.invert_yaxis()
 ax.invert_xaxis()
 ax.set_box_aspect(aspect=(1,1,1))
 
-ax = fig.add_subplot(spec[2])
+ax = fig.add_subplot(spec[1:6, 3])
 plt.scatter(X[:,0],X[:,1], c=color, s = 60, edgecolors='black', linewidth=0.7)
 ax.set_xlabel("$x_1$", font = fontbold2)
 ax.set_ylabel("$x_2$", font = fontbold2)
 circle = plt.Circle((0,0),6, color = 'grey', alpha = 0.3)
 ax.add_patch(circle)
 plt.subplots_adjust(left=0.07, right=0.975, top=0.99, bottom=0.11)
+
+plt.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\svm_intro.png',dpi = 150)
+

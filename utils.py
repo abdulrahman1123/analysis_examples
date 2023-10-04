@@ -85,3 +85,31 @@ def model_performance(model,X_test,y_test, col_names):
     spec = tn / (tn + fp)
     accuracy = (tp + tn) / (tp + tn + fp + fn)
     return pd.DataFrame([[sens, spec, accuracy]], columns=['Sensitivity', 'Specificity', 'Accuracy'])
+
+
+def plot_train_test(X_train, X_test):
+    """
+    Plot the sizes of training and testing datasets for visualization reasons
+    :param X_train: Training dataset that contains training subjects as rows
+    :param X_test: Testing dataset that contains testing subjects as rows
+    :return: plots a stacked horizontal bar plot showing training and testing dataset sizes
+    """
+    train_size = X_train.shape[0]
+    test_size = X_test.shape[0]
+
+    fig, ax = plt.subplots(figsize=(12.5, 1))
+    ax.barh(['Data Split'], train_size, edgecolor='black', color='lightsteelblue')
+    ax.barh(['Data Split'], test_size, left=train_size, edgecolor='black', color='white')
+    ax.text(2, 0, f'Training sample = {train_size} subjects \n(Training the model & finding best parameters)',
+            font='Cambria', size=14, va='center_baseline')
+    ax.text(train_size + 2, 0, f'Testing sample = {test_size} subjects\n(held-out for final testing)', font='Cambria',
+            size=14, va='center_baseline')
+    ax.set_xticks([]);
+    ax.set_yticks([]);
+    ax.set_xlabel('');
+    ax.set_ylabel('')
+    for spine in ax.spines:
+        ax.spines[spine].set_visible(False)
+    fig.subplots_adjust(left=0.01, right=1, top=0.95, bottom=0.05)
+    plt.show()
+
