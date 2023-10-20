@@ -60,3 +60,11 @@ plt.subplots_adjust(left=0.07, right=0.975, top=0.99, bottom=0.11)
 
 plt.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\svm_intro.png',dpi = 150)
 
+from ucimlrepo import fetch_ucirepo
+
+# fetch dataset
+heart_disease = fetch_ucirepo(id=45)
+
+# data (as pandas dataframes)
+X = heart_disease.data.features
+y = heart_disease.data.targets
