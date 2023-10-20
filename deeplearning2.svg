@@ -28,7 +28,7 @@
      inkscape:document-units="mm"
      inkscape:zoom="1.0343421"
      inkscape:cx="417.17339"
-     inkscape:cy="18.852563"
+     inkscape:cy="250.88411"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="1912"
@@ -50,13 +50,13 @@
      id="layer1"
      transform="translate(-40.154686,-90.605675)">
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.83515;stroke-linecap:square;stroke-linejoin:round"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.97489;stroke-linecap:square;stroke-linejoin:round"
        id="rect11"
        width="257.93054"
-       height="77.666733"
+       height="89.945068"
        x="40.154686"
        y="90.605675"
-       ry="3.5453604e-06" />
+       ry="4.1058465e-06" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.94438;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="M 108.10989,93.375159 V 165.32202"
@@ -548,5 +548,16 @@
         </g>
       </g>
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:12.7px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.2;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="83.896255"
+       y="176.55403"
+       id="text53"><tspan
+         sodipodi:role="line"
+         id="tspan53"
+         style="font-size:12.7px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.2"
+         x="83.896255"
+         y="176.55403">Sigmoid                                 ReLU</tspan></text>
   </g>
 </svg>
