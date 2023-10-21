@@ -1,11 +1,11 @@
 name,role,type,demographic,description,units,missing_values
 age,Feature,Integer,Age,,years,no
 sex,Feature,Categorical,Sex,,,no
-cp,Feature,Categorical,,,,no
+cp,Feature,Categorical,,"chest pain type (0:typical angina, 1:atypical angina, 2:non-anginal pain, 4:asymptomatic)",,no
 trestbps,Feature,Integer,,resting blood pressure (on admission to the hospital),mm Hg,no
 chol,Feature,Integer,,serum cholestoral,mg/dl,no
 fbs,Feature,Categorical,,fasting blood sugar > 120 mg/dl,,no
-restecg,Feature,Categorical,,,,no
+restecg,Feature,Categorical,,"resting ECG (0:normal, 1: ST-wae abnormality, 2: left ventricular hypertrophy)",,no
 thalach,Feature,Integer,,maximum heart rate achieved,,no
 exang,Feature,Categorical,,exercise induced angina,,no
 oldpeak,Feature,Integer,,ST depression induced by exercise relative to rest,,no
