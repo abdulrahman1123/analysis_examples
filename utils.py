@@ -6,6 +6,12 @@ from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import classification_report, recall_score,confusion_matrix
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+sns.set(style="darkgrid")
+sns.set_context("paper")
 
 def choose_model(model, c_type = 'best', plot_result = True):
     """
@@ -85,7 +91,7 @@ def model_performance(model,X_test,y_test, col_names):
     return pd.DataFrame([[sens, spec, accuracy]], columns=['Sensitivity', 'Specificity', 'Accuracy'])
 
 
-def plot_train_test(X_train, X_test):
+def plot_train_test(X_train, X_test, X_val = None):
     """
     Plot the sizes of training and testing datasets for visualization reasons
     :param X_train: Training dataset that contains training subjects as rows
@@ -94,13 +100,17 @@ def plot_train_test(X_train, X_test):
     """
     train_size = X_train.shape[0]
     test_size = X_test.shape[0]
+    val_size = 0 if np.all(pd.isnull(X_val)) else X_val.shape[0]
 
     fig, ax = plt.subplots(figsize=(12.5, 1))
     ax.barh(['Data Split'], train_size, edgecolor='black', color='lightsteelblue')
-    ax.barh(['Data Split'], test_size, left=train_size, edgecolor='black', color='white')
-    ax.text(2, 0, f'Training sample = {train_size} subjects \n(Training the model & finding best parameters)',
+    ax.barh(['Data Split'], val_size, left=train_size, edgecolor='black', color='grey')
+    ax.barh(['Data Split'], test_size, left=train_size+val_size, edgecolor='black', color='white')
+    ax.text(2, 0, f'Training sample = {train_size} subjects \n(Training the model)',
             font='Cambria', size=14, va='center_baseline')
-    ax.text(train_size + 2, 0, f'Testing sample = {test_size} subjects\n(held-out for final testing)', font='Cambria',
+    ax.text(train_size + 1, 0, f'Validation = {val_size} subjects\n(finding best parameters)', font='Cambria',
+            size=14, va='center_baseline')
+    ax.text(train_size+val_size + 2, 0, f'Testing sample = {test_size} subjects\n(held-out for final testing)', font='Cambria',
             size=14, va='center_baseline')
     ax.set_xticks([]);
     ax.set_yticks([]);
