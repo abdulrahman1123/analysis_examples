@@ -4,10 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.impute import SimpleImputer
-import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, recall_score,confusion_matrix
 import statsmodels.api as sm
-import seaborn as sns
 
 def choose_model(model, c_type = 'best', plot_result = True):
     """
