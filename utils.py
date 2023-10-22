@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import classification_report, recall_score,confusion_matrix
+from sklearn.metrics import RocCurveDisplay,classification_report, recall_score,confusion_matrix
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -108,7 +108,8 @@ def plot_train_test(X_train, X_test, X_val = None):
     ax.barh(['Data Split'], test_size, left=train_size+val_size, edgecolor='black', color='white')
     ax.text(2, 0, f'Training sample = {train_size} subjects \n(Training the model)',
             font='Cambria', size=14, va='center_baseline')
-    ax.text(train_size + 1, 0, f'Validation = {val_size} subjects\n(finding best parameters)', font='Cambria',
+    if not np.all(pd.isnull(X_val)):
+        ax.text(train_size + 1, 0, f'Validation = {val_size} subjects\n(finding best parameters)', font='Cambria',
             size=14, va='center_baseline')
     ax.text(train_size+val_size + 2, 0, f'Testing sample = {test_size} subjects\n(held-out for final testing)', font='Cambria',
             size=14, va='center_baseline')
