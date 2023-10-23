@@ -45,9 +45,9 @@ def choose_model(model, c_type = 'best', plot_result = True):
     if plot_result:
         fig, ax = plt.subplots(figsize=(8, 5))
         ax3 = ax.twiny()
-        ax3.set_xticks(np.arange(0, len(included_vars) + 2), [''] + list(included_vars) + [''], font = 'Cambria', fontsize = 12)
+        ax3.set_xticks(np.arange(0, len(included_vars) + 2), [''] + list(included_vars) + [''], fontsize = 12)
         ax3.tick_params(width=0, length = 0)
-        ax3.set_xlabel('Included Variables', font = "Cambria", fontsize = 18)
+        ax3.set_xlabel('Included Variables', fontsize = 18)
         ax.axvline(x=np.log(best_c), color='grey', ls='-', lw=1, label='Best Score Model')
         ax.axvline(x=np.log(c1se), color='grey', ls='-.', lw=1, label='Parsimonious Model')
         ax.errorbar(np.log(model.Cs_), scores, scores_sem, fmt='o', linewidth=1,
@@ -55,10 +55,10 @@ def choose_model(model, c_type = 'best', plot_result = True):
         ax.legend()
         x_axis_text = np.round(ax.get_xticks()[1:-1],1)
         y_axis_text = np.round(ax.get_yticks()[1:-1],1)
-        ax.set_xticks(ticks =x_axis_text, labels =  x_axis_text,font = 'Cambria', fontsize = 12)
-        ax.set_yticks(ticks =y_axis_text, labels =  y_axis_text,font = 'Cambria', fontsize = 12)
-        ax.set_xlabel('log(C)',font = 'Cambria', fontsize = 18)
-        ax.set_ylabel('Accuracy',font = 'Cambria', fontsize = 18)
+        ax.set_xticks(ticks =x_axis_text, labels =  x_axis_text, fontsize = 12)
+        ax.set_yticks(ticks =y_axis_text, labels =  y_axis_text, fontsize = 12)
+        ax.set_xlabel('log(C)', fontsize = 18)
+        ax.set_ylabel('Accuracy', fontsize = 18)
 
     if c_type=='best':
         return model.C_[0]
@@ -107,11 +107,11 @@ def plot_train_test(X_train, X_test, X_val = None):
     ax.barh(['Data Split'], val_size, left=train_size, edgecolor='black', color='grey')
     ax.barh(['Data Split'], test_size, left=train_size+val_size, edgecolor='black', color='white')
     ax.text(2, 0, f'Training sample = {train_size} subjects \n(Training the model)',
-            font='Cambria', size=14, va='center_baseline')
-    if not np.all(pd.isnull(X_val)):
-        ax.text(train_size + 1, 0, f'Validation = {val_size} subjects\n(finding best parameters)', font='Cambria',
             size=14, va='center_baseline')
-    ax.text(train_size+val_size + 2, 0, f'Testing sample = {test_size} subjects\n(held-out for final testing)', font='Cambria',
+    if not np.all(pd.isnull(X_val)):
+        ax.text(train_size + 1, 0, f'Validation = {val_size} subjects\n(finding best parameters)', 
+            size=14, va='center_baseline')
+    ax.text(train_size+val_size + 2, 0, f'Testing sample = {test_size} subjects\n(held-out for final testing)',
             size=14, va='center_baseline')
     ax.set_xticks([]);
     ax.set_yticks([]);
