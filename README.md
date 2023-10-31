@@ -8,5 +8,4 @@ Logistic Regression: [![Binder](https://mybinder.org/badge_logo.svg)](https://my
 
 SVM: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=svm.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/svm_colab.ipynb)
 
-Neural Networks: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=Neural%20Networks.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]
-(https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/Neural%20Networks_colab.ipynb)
+Neural Networks: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=Neural%20Networks.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/Neural%20Networks_colab.ipynb)
