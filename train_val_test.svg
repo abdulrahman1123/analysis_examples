@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="240.54662mm"
+   height="81.861176mm"
+   viewBox="-7 -1 261.46372 88.97954"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="train_val_test.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   sodipodi:docname="train_val_test.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="2.0686841"
+     inkscape:cx="553.25024"
+     inkscape:cy="138.01044"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <rect
+       x="1.3672591"
+       y="382.83255"
+       width="838.12982"
+       height="105.27895"
+       id="rect1" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-42.669392,-97.444054)">
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text1"
+       style="font-weight:bold;font-size:42.6667px;line-height:1;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;white-space:pre;shape-inside:url(#rect1);display:inline;fill:#000000;stroke-width:11.3386;stroke-linecap:square;stroke-linejoin:round" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2"
+       width="257.93057"
+       height="30.749086"
+       x="36.175396"
+       y="96.950058" />
+    <rect
+       style="fill:#d6dadf;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3"
+       width="202.24304"
+       height="30.749084"
+       x="36.175396"
+       y="96.950058" />
+    <rect
+       style="fill:#45a5d4;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4"
+       width="137.66122"
+       height="30.761097"
+       x="36.169392"
+       y="96.944054" />
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:16.9333px;line-height:1;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;fill:#45a5d4;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="109.2802"
+       y="116.3884"
+       id="text4"><tspan
+         sodipodi:role="line"
+         id="tspan4"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+         x="109.2802"
+         y="116.3884">Training</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:14.1111px;line-height:1;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;fill:#45a5d4;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="206.04575"
+       y="116.66125"
+       id="text4-8"><tspan
+         sodipodi:role="line"
+         id="tspan4-6"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+         x="206.04575"
+         y="116.66125">Validation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="265.97791"
+       y="115.12698"
+       id="text5"><tspan
+         sodipodi:role="line"
+         id="tspan5"
+         style="stroke-width:1"
+         x="265.97791"
+         y="115.12698">Testing</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.7367px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.10869565;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="101.08566"
+       y="148.41882"
+       id="text6"><tspan
+         sodipodi:role="line"
+         id="tspan6"
+         style="font-size:10.7367px;stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="101.08566"
+         y="148.41882">used to train the model</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.94532px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.10869565;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="204.48155"
+       y="147.16713"
+       id="text7"><tspan
+         sodipodi:role="line"
+         id="tspan7"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="204.48155"
+         y="147.16713">used to validate</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="204.48155"
+         y="156.11244"
+         id="tspan8">a number of </tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="204.48155"
+         y="165.05777"
+         id="tspan10">parameters </tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="204.48155"
+         y="174.0031"
+         id="tspan11">(e.g. the C </tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="204.48155"
+         y="182.94841"
+         id="tspan12">parameter)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.7367px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.10869565;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       x="268.37146"
+       y="148.44504"
+       id="text13"><tspan
+         sodipodi:role="line"
+         id="tspan13"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="268.37146"
+         y="148.44504">used for</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="268.37146"
+         y="159.18173"
+         id="tspan14">final testing</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.10869565;stroke:#000000;stroke-opacity:1;stroke-dasharray:none"
+         x="268.37146"
+         y="169.91844"
+         id="tspan16">of the model</tspan></text>
+  </g>
+</svg>
