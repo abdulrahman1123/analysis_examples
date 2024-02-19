@@ -76,6 +76,12 @@ y = heart_disease.data.targets
 ####################################
 # PCA
 ####################################
+
+#!mkdir data
+#!wget http://cf.10xgenomics.com/samples/cell-exp/1.1.0/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz -O data/pbmc3k_filtered_gene_bc_matrices.tar.gz
+#!cd data; tar -xzf pbmc3k_filtered_gene_bc_matrices.tar.gz
+#!mkdir write
+
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -102,6 +108,8 @@ cov_mat = np.cov(data,rowvar=0)
 # from: https://builtin.com/data-science/step-step-explanation-principal-component-analysis
 # eigenvectors are the directions of axies of most variance (i.e., axes of principle components).
 # Eigenvalues are the coefficients attached to eigenvectors, which reflects the amount of variance carried in each PC
+# Geometrically speaking, principal components represent the directions of the data that explain a maximal amount of
+# variance, that is to say, the lines that capture most information of the data.
 values, vectors = np.linalg.eig(cov_mat)
 slopes = [vectors.T[np.abs(values)== np.max(np.abs(values))], vectors.T[np.abs(values)== np.min(np.abs(values))]]
 slopes = [item[0,1]/item[0,0] for item in slopes]
@@ -123,8 +131,7 @@ data['c2_x'] = np.sqrt(data['c2_pro_x']**2+data['c2_pro_y']**2)
 data['c2_x'] =np.where(data['c2_pro_x']<0,-1*np.sign(slopes[1])*data['c2_x'],np.sign(slopes[1])*data['c2_x'])
 
 
-
-image = Image.open(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\eye.png')
+image = Image.open('eye.png')
 im_rot45 = image.rotate(45)  # Specify the desired angle
 im_rot_m45 = image.rotate(-45)  # Specify the desired angle
 
@@ -151,7 +158,7 @@ ax3.set_ylim(-2.5,3.5)
 ax3.imshow(im_rot_m45, extent=(1.5, 2.5, -2, -1))
 plt.subplots_adjust(left=0.075, right=0.95, top=0.875, bottom=0.175,wspace = 0.25)
 
-fig.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\pca_intro_1.png',dpi = 200)
+#fig.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\pca_intro_1.png',dpi = 200)
 
 min_c1, max_c1 = 1.3*np.min(data[['c1_pro_x']]),np.max(data[['c1_pro_x']])*1.3
 min_c2, max_c2 = 1.3*np.min(data[['c2_pro_x']]),np.max(data[['c2_pro_x']])*1.3
@@ -184,13 +191,63 @@ ax4.set_title('Component #2 projection')
 ax4.set_xlabel('X1', size = 15)
 
 plt.subplots_adjust(left=0.07, right=0.975, top=0.875, bottom=0.15)
-fig.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\pca_intro_2.png',dpi = 200)
+#fig.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\pca_intro_2.png',dpi = 200)
 
 
 # compute pca
 pca = PCA(n_components=2)
 data_pca = pca.fit_transform(data[['x1','x2']])
 
+fig,ax = plt.subplots(figsize = (5,4))
+ax.scatter(data_pca[:,0],data_pca[:,1],edgecolor = 'black',s = 45)
+ax.set_xlabel('PC1', size =15)
+ax.set_ylabel('PC2', size =15)
+ax.set_ylim(-4,4)
+plt.subplots_adjust(left=0.15, right=0.95, top=0.875, bottom=0.175,wspace = 0.25)
 
-plt.plot(data_pca[:,0],data_pca[:,1],'o')
-plt.plot(data['c1_x'],-data['c2_x'],'o')
+#fig.savefig(r'\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\Documents\GitHub\analysis_examples\pcs_plot.png',dpi = 200)
+
+
+
+# Data is optained from: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0151982
+# Citation:Knaster, Peter et al. (2017). Data from: Diagnosing depression in chronic pain patients: DSM-IV Major Depressive Disorder vs. Beck Depression Inventory (BDI) [Dataset]. Dryad. https://doi.org/10.5061/dryad.14955
+
+# PCA on depression data
+data = pd.read_excel('Peter et al 2017 Paindepression.xlsx')
+data_scaled = StandardScaler().fit_transform(data)
+data = pd.DataFrame(data_scaled,columns = data.columns)
+
+# First, determine the best number of components
+n_comp = data.shape[1]-1
+pca_temp = PCA(n_components=n_comp)
+data_pca_temp = pca_temp.fit_transform(data.iloc[:,1::])
+eigenvalues = pca_temp.explained_variance_
+
+plt.plot(eigenvalues, color = 'steelblue')
+plt.scatter(np.arange(n_comp),eigenvalues, edgecolor = 'steelblue', color = 'white', linewidth = 2, zorder = 2)
+plt.title('Scree plot of PCA eigenvalues', size = 18)
+plt.xlabel('PCA Components',size = 13)
+plt.ylabel('Explained variance (Eigenvalues)',size = 13)
+plt.xticks(np.arange(n_comp),(np.arange(n_comp)+1))
+
+n_comp = 2
+pca = PCA(n_components=n_comp)
+data_pca = pca.fit_transform(data.iloc[:,1::])
+
+comp_or = pd.DataFrame(pca.components_.T, index=data.columns[1::], columns=['PCA'+str(i+1) for i in range(n_comp)])
+comp = np.round(comp_or,3)
+comp = comp.astype(str)
+comp[np.abs(comp_or) < 0.4] = 0
+
+comp = pd.concat([comp, pd.DataFrame([pca.explained_variance_ratio_], columns=comp.columns, index=['Explained Var'])])
+
+fig,(ax1,ax2) = plt.subplots(ncols = 2, figsize = (8,5))
+ax1.barh(comp_or.index,comp_or['PCA1'], color = 'olivedrab',edgecolor = 'black', linewidth = 0.75)
+ax1.set_xlabel('PCA 1 loadings',size = 13)
+ax2.barh(comp_or.index,comp_or['PCA2'], color = 'crimson', edgecolor = 'black', linewidth = 0.75)
+ax2.tick_params(axis='y', which='both', left=False, labelleft=False)
+ax2.set_xlabel('PCA 2 loadings',size = 13)
+plt.subplots_adjust(left=0.2, right=0.95, top=0.875, bottom=0.175,wspace = 0.25)
+
+
+
