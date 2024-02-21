@@ -93,6 +93,50 @@ from sklearn.decomposition import PCA
 import math
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from PIL import Image
+from sklearn.preprocessing import MaxAbsScaler
+from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
+
+def plot_pca(pca):
+    eigenvalues = pca.explained_variance_
+    n_comp = pca.n_components
+    plt.plot(eigenvalues, color = 'steelblue')
+    plt.scatter(np.arange(n_comp),eigenvalues, edgecolor = 'steelblue', color = 'white', linewidth = 2, zorder = 2)
+    plt.title('Scree plot of PCA eigenvalues', size = 18)
+    plt.xlabel('PCA Components',size = 13)
+    plt.ylabel('Explained variance (Eigenvalues)',size = 13)
+    plt.xticks(np.arange(n_comp),(np.arange(n_comp)+1))
+
+def get_components(pca,or_cols,plot_result = False, threshold = 0.3,max_plot_feature = 20, max_plot_comp = 5):
+    n_comp = pca.n_components
+    comp_or = pd.DataFrame(pca.components_.T, index=or_cols, columns=['PCA'+str(i+1) for i in range(n_comp)])
+    comp = np.round(comp_or,3)
+    comp = comp.astype(str)
+    comp[np.abs(comp_or) < threshold] = 0
+    comp = pd.concat([comp, pd.DataFrame([pca.explained_variance_ratio_], columns=comp.columns, index=['Explained Var'])])
+    if plot_result:
+        data_size = comp_or.shape[0]*comp_or.shape[1]
+        if (data_size)>1000:
+            threshold = np.quantile(np.abs(comp_or), 1 - max_plot_feature / comp_or.shape[0], axis = 0)
+            plt_dat = comp_or[np.abs(comp_or)>threshold]
+        else:
+            plt_dat = comp_or
+
+        x_range=()
+        plot_comp = np.min((max_plot_comp,5))
+        plt_dat = plt_dat.loc[np.any(~np.isnan(plt_dat[['PCA'+str(i+1) for i in range(plot_comp)]]), axis=1), :]
+        fig_width = np.min((14,2+3*plot_comp))
+        fig_height = np.min((9,1+2*plot_comp))
+        fig, axes = plt.subplots(ncols=plot_comp, figsize=(fig_width, fig_height))
+        colors = ['olivedrab', 'crimson','steelblue', 'darkgoldenrod','grey']
+        for i, col, label,ax in zip(np.arange(plot_comp), colors, plt_dat.columns, axes.ravel()):
+            ax.barh(plt_dat.index, plt_dat[label], color=col, edgecolor='black', linewidth=0.75)
+            ax.set_xlabel(label+' loadings', size=13)
+            if i >0:
+                ax.tick_params(axis='y', which='both', left=False, labelleft=False)
+        #plt.subplots_adjust(left=0.21, right=0.95, top=0.875, bottom=0.175, wspace=0.25)
+
+    return comp
 
 x1 = np.random.random(40)
 x2 = np.random.random(40)**2
@@ -213,41 +257,113 @@ plt.subplots_adjust(left=0.15, right=0.95, top=0.875, bottom=0.175,wspace = 0.25
 # Citation:Knaster, Peter et al. (2017). Data from: Diagnosing depression in chronic pain patients: DSM-IV Major Depressive Disorder vs. Beck Depression Inventory (BDI) [Dataset]. Dryad. https://doi.org/10.5061/dryad.14955
 
 # PCA on depression data
-data = pd.read_excel('Peter et al 2017 Paindepression.xlsx')
-data_scaled = StandardScaler().fit_transform(data)
-data = pd.DataFrame(data_scaled,columns = data.columns)
+data = pd.read_csv('dep_pain.csv')
+data_scaled = StandardScaler().fit_transform(data.iloc[:,1::])
+data = pd.DataFrame(data_scaled,columns = data.columns[1::])
+
 
 # First, determine the best number of components
-n_comp = data.shape[1]-1
+n_comp = data.shape[1]
 pca_temp = PCA(n_components=n_comp)
-data_pca_temp = pca_temp.fit_transform(data.iloc[:,1::])
-eigenvalues = pca_temp.explained_variance_
-
-plt.plot(eigenvalues, color = 'steelblue')
-plt.scatter(np.arange(n_comp),eigenvalues, edgecolor = 'steelblue', color = 'white', linewidth = 2, zorder = 2)
-plt.title('Scree plot of PCA eigenvalues', size = 18)
-plt.xlabel('PCA Components',size = 13)
-plt.ylabel('Explained variance (Eigenvalues)',size = 13)
-plt.xticks(np.arange(n_comp),(np.arange(n_comp)+1))
+data_pca_temp = pca_temp.fit_transform(data)
+plot_pca(pca_temp)
 
 n_comp = 2
 pca = PCA(n_components=n_comp)
-data_pca = pca.fit_transform(data.iloc[:,1::])
+data_pca = pca.fit_transform(data)
 
-comp_or = pd.DataFrame(pca.components_.T, index=data.columns[1::], columns=['PCA'+str(i+1) for i in range(n_comp)])
-comp = np.round(comp_or,3)
-comp = comp.astype(str)
-comp[np.abs(comp_or) < 0.4] = 0
-
-comp = pd.concat([comp, pd.DataFrame([pca.explained_variance_ratio_], columns=comp.columns, index=['Explained Var'])])
-
-fig,(ax1,ax2) = plt.subplots(ncols = 2, figsize = (8,5))
-ax1.barh(comp_or.index,comp_or['PCA1'], color = 'olivedrab',edgecolor = 'black', linewidth = 0.75)
-ax1.set_xlabel('PCA 1 loadings',size = 13)
-ax2.barh(comp_or.index,comp_or['PCA2'], color = 'crimson', edgecolor = 'black', linewidth = 0.75)
-ax2.tick_params(axis='y', which='both', left=False, labelleft=False)
-ax2.set_xlabel('PCA 2 loadings',size = 13)
-plt.subplots_adjust(left=0.2, right=0.95, top=0.875, bottom=0.175,wspace = 0.25)
+comp = get_components(pca,data.columns, True,0.35)
+comp
 
 
 
+################################
+# RNA Seq
+################################
+sc.settings.verbosity = 3             # verbosity: errors (0), warnings (1), info (2), hints (3)
+sc.logging.print_header()
+sc.settings.set_figure_params(dpi=80, facecolor='white')
+results_file = 'write/pbmc3k.h5ad'  # the file that will store the analysis results
+
+adata = sc.read_10x_mtx(
+    'data/filtered_gene_bc_matrices/hg19/',  # the directory with the `.mtx` file
+    var_names='gene_symbols',                # use gene symbols for the variable names (variables-axis index)
+    cache=True)
+
+
+df = adata.to_df()
+
+adata.var_names_make_unique()
+sc.pl.highest_expr_genes(adata, n_top=20, )
+adata.var['mt'] = adata.var_names.str.startswith('MT-')  # annotate the group of mitochondrial genes as 'mt'
+
+adata = adata[adata.obs.n_genes_by_counts < 2500, :]
+adata = adata[adata.obs.pct_counts_mt < 5, :]
+
+sc.tl.pca(adata, svd_solver='arpack')
+sc.tl.pca()
+sc.pl.pca(adata, color='CST3')
+
+
+
+ran_d = pd.read_csv(r'C:\Users\Sawalma_A\Downloads\E-GEOD-19268-A-AFFY-2-normalized-expressions.tsv', delimiter = '\t')
+
+
+
+
+
+
+# Data from:
+# Zhang Y, Tong GH, Wei XX, Chen HY et al. Identification of Five Cytotoxicity-Related Genes Involved in the Progression of Triple-Negative Breast Cancer. Front Genet 2021;12:723477. PMID: 35046993
+gendat = pd.read_csv('https://github.com/mmilano87/PCAPxDEG/raw/main/dataset/GSE183947_fpkm.csv')
+gendat.index = gendat['Unnamed: 0'].values
+gendat = gendat.drop('Unnamed: 0',axis = 1)
+gendat = gendat.T
+subgroup = np.array(['Control' if item.startswith('CAP') else 'Cancer' for item in list(gendat.index)])
+
+# MaxAbsScaler scales every feature based on its maximum absolute value
+trans_gendat = MaxAbsScaler().fit_transform(gendat)
+trans_gendat = pd.DataFrame(trans_gendat, index = gendat.index, columns=gendat.columns)
+
+# determine best number of components
+pca = PCA(n_components=trans_gendat.shape[0])
+pca_data = pca.fit_transform(trans_gendat)
+
+plot_pca(pca)
+
+n_comp = 10
+pca = PCA(n_components=n_comp)
+pca_data = pca.fit_transform(trans_gendat)
+pca_data = pd.DataFrame(pca_data, columns = ['PCA'+str(i+1) for i in range(n_comp)])
+plot_pca(pca)
+get_components(pca,or_cols=trans_gendat.columns, plot_result=False,threshold=0.05)
+
+colors = np.where(subgroup=='Control','steelblue','indianred')
+
+fig = plt.figure()
+fig.set_figwidth(12)
+ax = fig.add_subplot(121,projection = '3d')
+
+ax.scatter(pca_data['PCA1'],pca_data['PCA2'],pca_data['PCA3'], c=colors, s = 60, edgecolors='black', linewidth = 1)
+ax.set_xlabel('PCA1');ax.set_ylabel('PCA2');ax.set_zlabel('PCA3')
+
+ax2 = fig.add_subplot(122)
+ax2.scatter(pca_data['PCA1'],pca_data['PCA2'],c = colors, edgecolor = 'white',s = 60)
+ax2.set_xlabel('PCA1');ax2.set_ylabel('PCA2')
+
+
+
+kmeans=KMeans(n_clusters=2, init="k-means++", n_init=50, max_iter=500, random_state=42).fit(pca_data)
+
+
+
+dbscan = DBSCAN(eps=0.5, min_samples=13, metric='euclidean', algorithm='auto').fit(pca_data)
+
+dataframe = pd.DataFrame(pca_data, columns=["X", "Y"])
+dataframe["clusters"] = dbscan.labels_
+
+plt.figure(figsize=(8, 6)) #
+plt.scatter(dataframe['X'],dataframe['Y'], c = np.where(dataframe['clusters'] == 0 ,'blue','indianred'),s = 50, edgecolors='white')
+plt.scatter(dataframe.loc[dataframe['clusters']==-1,'X'].values[0],dataframe.loc[dataframe['clusters']==-1,'Y'].values[0], c='indianred', label = 'Group 1')
+plt.scatter(dataframe.loc[dataframe['clusters']==0,'X'].values[0],dataframe.loc[dataframe['clusters']==0,'X'].values[0], c='blue', label = 'Group 0')
+plt.legend()
