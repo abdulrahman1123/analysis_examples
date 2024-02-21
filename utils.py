@@ -125,6 +125,69 @@ def plot_train_test(X_train, X_test, X_val = None):
     fig.subplots_adjust(left=0.01, right=1, top=0.95, bottom=0.05)
     plt.show()
 
+def plot_pca(pca):
+    """
+    plot the eigenvalues (ratio of explained variance) in a scree plot
+    :param pca: fitted pca object
+    :return: a scree plot of pca eigenvalues
+    """
+    eigenvalues = pca.explained_variance_
+    n_comp = pca.n_components
+    plt.plot(eigenvalues, color = 'steelblue')
+    plt.scatter(np.arange(n_comp),eigenvalues, edgecolor = 'steelblue', color = 'white', linewidth = 2, zorder = 2)
+    plt.title('Scree plot of PCA eigenvalues', size = 18)
+    plt.xlabel('PCA Components',size = 13)
+    plt.ylabel('Explained variance (Eigenvalues)',size = 13)
+    plt.xticks(np.arange(n_comp),(np.arange(n_comp)+1))
+
+def get_components(pca,or_cols,plot_result = False, text_threshold = 0.3,max_plot_feature = 20, max_plot_comp = 10):
+    """
+    retrieve the loadings for each PC. You can also plot the loadings.
+    :param pca: fitted pca object
+    :param or_cols: names of columns in the original data set (the one the PCA was fitted on)
+    :param plot_result: whether to plot the loadings
+    :param threshold: threshold for components to be considered. loadings with absolute values lower than
+                      this threshold will be replaced with zeros
+    :param max_plot_feature: maximum number of features to plot
+    :param max_plot_comp: maximum number of PCs to plot
+    :return: data frame representing the loadings of PCs on variables of the original dataset
+    """
+    n_comp = pca.n_components
+    comp_or = pd.DataFrame(pca.components_.T, index=or_cols, columns=['PCA'+str(i+1) for i in range(n_comp)])
+
+    # create a dataframe with reduced number of features for printing and plotting
+    comp_th = np.round(comp_or, 3)
+    if  max_plot_feature < comp_or.shape[0]:
+        threshold = np.quantile(np.abs(comp_or), 1 - max_plot_feature / comp_or.shape[0], axis=0)
+        comp_th[np.abs(comp_th)<threshold] = 0
+
+    red_comp_count = np.min((max_plot_comp,n_comp, 10))
+    comp_th = comp_th.loc[np.any(comp_th[['PCA' + str(i + 1) for i in range(red_comp_count)]]!=0, axis=1), :]
+
+    comp_txt = comp_th.astype(str)
+    comp_txt[np.abs(comp_or) < text_threshold] = 0
+    comp_txt = pd.concat([comp_txt, pd.DataFrame([pca.explained_variance_ratio_], columns=comp_txt.columns, index=['Explained Var'])])
+    print(comp_txt)
+    comp_or = pd.concat([comp_or, pd.DataFrame([pca.explained_variance_ratio_], columns=comp_or.columns, index=['Explained Var'])])
+    if plot_result:
+        plt_dat = comp_th.iloc[0:-1,:]
+
+        x_range=(np.min(plt_dat)*1.05,np.max(plt_dat)*1.05)
+        fig_width = np.min((18,2+3*red_comp_count))
+        fig_height = np.min((9,1+1.5*red_comp_count))
+        fig, axes = plt.subplots(ncols=red_comp_count, figsize=(fig_width, fig_height))
+        colors = ['olivedrab', 'crimson','darkgoldenrod','steelblue','darkmagenta','grey','palevioletred','sienna','beige','coral']
+        for i, col, label,ax in zip(np.arange(red_comp_count), colors, plt_dat.columns, axes.ravel()):
+            ax.barh(plt_dat.index, plt_dat[label], color=col, edgecolor='black', linewidth=0.75)
+            ax.set_xlabel(label+' loadings', size=13)
+            ax.set_xlim(x_range[0],x_range[1])
+            if i >0:
+                ax.tick_params(axis='y', which='both', left=False, labelleft=False)
+        #plt.subplots_adjust(left=0.21, right=0.95, top=0.875, bottom=0.175, wspace=0.25)
+
+    return comp_or
+
+
 def calc_ttest(inc_data, ind_var, lvls, dep_var,tick_labels = None, colors = ['blue','red'], plot_result = False, return_ax = False, force_ttest = False, test_type = '2samp', verbose = False, y_label = None):
     '''
     simple function to compute t test or Mann-Whitney test (for data that vilates the normality assumption)
