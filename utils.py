@@ -9,9 +9,12 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from scipy.stats import shapiro
+from scipy.stats import mannwhitneyu as mn_test, ttest_ind as ttest
 
-sns.set(style="darkgrid")
-sns.set_context("paper")
+
+#sns.set(style="darkgrid")
+#sns.set_context("paper")
 
 def choose_model(model, c_type = 'best', plot_result = True):
     """
@@ -122,3 +125,46 @@ def plot_train_test(X_train, X_test, X_val = None):
     fig.subplots_adjust(left=0.01, right=1, top=0.95, bottom=0.05)
     plt.show()
 
+def calc_ttest(inc_data, ind_var, lvls, dep_var,tick_labels = None, colors = ['blue','red'], plot_result = False, return_ax = False, force_ttest = False, test_type = '2samp', verbose = False, y_label = None):
+    '''
+    simple function to compute t test or Mann-Whitney test (for data that vilates the normality assumption)
+    :param inc_data: the dataframe to be included
+    :param ind_var: independent variable
+    :param lvls: the two levels fo independent variable that should be compared
+    :param dep_var: the dependent variable
+    :param verbose: whether to return feedback or error messages
+    :return: a data frame with the statsitic (Mann-Whitney U or T-Test T), p-value and test type (MN or T-test)
+    '''
+    if tick_labels == None:
+        tick_labels = lvls
+
+    dep = inc_data[dep_var].apply(lambda x: pd.to_numeric(x, errors='coerce'))
+    ind = inc_data[ind_var]
+
+    data1= dep.loc[pd.notna(dep) & (ind==lvls[0])].astype('float64')
+    data2= dep.loc[pd.notna(dep) & (ind==lvls[1])].astype('float64')
+
+    if len(data1)<3 or len(data2)<3:
+        if verbose:
+            print(f'Smallest group has {np.min([data1.shape[0],data2.shape[0]])} cases, returning NA')
+        if return_ax:
+            return pd.DataFrame([[np.nan]*6], columns=['statistic','p-val','test_type','df','Mean1','Mean2']), [None,None]
+        else:
+            return pd.DataFrame([[np.nan]*6], columns=['statistic','p-val','test_type','df','Mean1','Mean2'])
+    if (shapiro(data1)[1]>0.05 and shapiro(data2)[1]>0.05) or (len(data1)>30 and len(data2)>30) or force_ttest:
+        test_res = ttest(data1,data2)
+        stat, pval, testtype = np.round(test_res[0],3),np.round(test_res[1],3),'T-test'
+    else:
+        test_res = mn_test(data1, data2)
+        stat, pval, testtype = np.round(test_res[0],3),np.round(test_res[1],3),'MW-test'
+    df= data1.shape[0]+data2.shape[0]-2
+    m1,m2 = np.round(data1.mean(),2), np.round(data2.mean(),2)
+    test_df =pd.DataFrame([[stat, pval, testtype, df,m1,m2]])
+
+    test_df.columns=['statistic','p-val','test_type','df','Mean1','Mean2']
+
+
+    if return_ax:
+        return test_df, (fig, ax)
+    else:
+        return test_df

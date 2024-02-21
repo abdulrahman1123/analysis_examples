@@ -82,6 +82,7 @@ y = heart_disease.data.targets
 #!cd data; tar -xzf pbmc3k_filtered_gene_bc_matrices.tar.gz
 #!mkdir write
 
+from utils import *
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -98,6 +99,11 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 
 def plot_pca(pca):
+    """
+    plot the eigenvalues (ratio of explained variance) in a scree plot
+    :param pca: fitted pca object
+    :return: a scree plot of pca eigenvalues
+    """
     eigenvalues = pca.explained_variance_
     n_comp = pca.n_components
     plt.plot(eigenvalues, color = 'steelblue')
@@ -107,36 +113,52 @@ def plot_pca(pca):
     plt.ylabel('Explained variance (Eigenvalues)',size = 13)
     plt.xticks(np.arange(n_comp),(np.arange(n_comp)+1))
 
-def get_components(pca,or_cols,plot_result = False, threshold = 0.3,max_plot_feature = 20, max_plot_comp = 5):
+def get_components(pca,or_cols,plot_result = False, text_threshold = 0.3,max_plot_feature = 20, max_plot_comp = 10):
+    """
+    retrieve the loadings for each PC. You can also plot the loadings.
+    :param pca: fitted pca object
+    :param or_cols: names of columns in the original data set (the one the PCA was fitted on)
+    :param plot_result: whether to plot the loadings
+    :param threshold: threshold for components to be considered. loadings with absolute values lower than
+                      this threshold will be replaced with zeros
+    :param max_plot_feature: maximum number of features to plot
+    :param max_plot_comp: maximum number of PCs to plot
+    :return: data frame representing the loadings of PCs on variables of the original dataset
+    """
     n_comp = pca.n_components
     comp_or = pd.DataFrame(pca.components_.T, index=or_cols, columns=['PCA'+str(i+1) for i in range(n_comp)])
-    comp = np.round(comp_or,3)
-    comp = comp.astype(str)
-    comp[np.abs(comp_or) < threshold] = 0
-    comp = pd.concat([comp, pd.DataFrame([pca.explained_variance_ratio_], columns=comp.columns, index=['Explained Var'])])
-    if plot_result:
-        data_size = comp_or.shape[0]*comp_or.shape[1]
-        if (data_size)>1000:
-            threshold = np.quantile(np.abs(comp_or), 1 - max_plot_feature / comp_or.shape[0], axis = 0)
-            plt_dat = comp_or[np.abs(comp_or)>threshold]
-        else:
-            plt_dat = comp_or
 
-        x_range=()
-        plot_comp = np.min((max_plot_comp,5))
-        plt_dat = plt_dat.loc[np.any(~np.isnan(plt_dat[['PCA'+str(i+1) for i in range(plot_comp)]]), axis=1), :]
-        fig_width = np.min((14,2+3*plot_comp))
-        fig_height = np.min((9,1+2*plot_comp))
-        fig, axes = plt.subplots(ncols=plot_comp, figsize=(fig_width, fig_height))
-        colors = ['olivedrab', 'crimson','steelblue', 'darkgoldenrod','grey']
-        for i, col, label,ax in zip(np.arange(plot_comp), colors, plt_dat.columns, axes.ravel()):
+    # create a dataframe with reduced number of features for printing and plotting
+    comp_th = np.round(comp_or, 3)
+    if  max_plot_feature < comp_or.shape[0]:
+        threshold = np.quantile(np.abs(comp_or), 1 - max_plot_feature / comp_or.shape[0], axis=0)
+        comp_th[np.abs(comp_th)<threshold] = 0
+
+    red_comp_count = np.min((max_plot_comp,n_comp, 10))
+    comp_th = comp_th.loc[np.any(comp_th[['PCA' + str(i + 1) for i in range(red_comp_count)]]!=0, axis=1), :]
+
+    comp_txt = comp_th.astype(str)
+    comp_txt[np.abs(comp_or) < text_threshold] = 0
+    comp_txt = pd.concat([comp_txt, pd.DataFrame([pca.explained_variance_ratio_], columns=comp_txt.columns, index=['Explained Var'])])
+    print(comp_txt)
+    comp_or = pd.concat([comp_or, pd.DataFrame([pca.explained_variance_ratio_], columns=comp_or.columns, index=['Explained Var'])])
+    if plot_result:
+        plt_dat = comp_th.iloc[0:-1,:]
+
+        x_range=(np.min(plt_dat)*1.05,np.max(plt_dat)*1.05)
+        fig_width = np.min((18,2+3*red_comp_count))
+        fig_height = np.min((9,1+1.5*red_comp_count))
+        fig, axes = plt.subplots(ncols=red_comp_count, figsize=(fig_width, fig_height))
+        colors = ['olivedrab', 'crimson','darkgoldenrod','steelblue','darkmagenta','grey','palevioletred','sienna','beige','coral']
+        for i, col, label,ax in zip(np.arange(red_comp_count), colors, plt_dat.columns, axes.ravel()):
             ax.barh(plt_dat.index, plt_dat[label], color=col, edgecolor='black', linewidth=0.75)
             ax.set_xlabel(label+' loadings', size=13)
+            ax.set_xlim(x_range[0],x_range[1])
             if i >0:
                 ax.tick_params(axis='y', which='both', left=False, labelleft=False)
         #plt.subplots_adjust(left=0.21, right=0.95, top=0.875, bottom=0.175, wspace=0.25)
 
-    return comp
+    return comp_or
 
 x1 = np.random.random(40)
 x2 = np.random.random(40)**2
@@ -332,11 +354,14 @@ pca_data = pca.fit_transform(trans_gendat)
 plot_pca(pca)
 
 n_comp = 10
+
 pca = PCA(n_components=n_comp)
 pca_data = pca.fit_transform(trans_gendat)
 pca_data = pd.DataFrame(pca_data, columns = ['PCA'+str(i+1) for i in range(n_comp)])
+pca_data.index =gendat.index
+
 plot_pca(pca)
-get_components(pca,or_cols=trans_gendat.columns, plot_result=False,threshold=0.05)
+pca_comp = get_components(pca,or_cols=trans_gendat.columns, plot_result=True,text_threshold=0.005, max_plot_feature=10, max_plot_comp=5)
 
 colors = np.where(subgroup=='Control','steelblue','indianred')
 
@@ -344,26 +369,114 @@ fig = plt.figure()
 fig.set_figwidth(12)
 ax = fig.add_subplot(121,projection = '3d')
 
-ax.scatter(pca_data['PCA1'],pca_data['PCA2'],pca_data['PCA3'], c=colors, s = 60, edgecolors='black', linewidth = 1)
-ax.set_xlabel('PCA1');ax.set_ylabel('PCA2');ax.set_zlabel('PCA3')
+ax.scatter(pca_data['PCA1'],pca_data['PCA3'],pca_data['PCA2'], c=colors, s = 60, edgecolors='white', linewidth = 1)
+ax.set_xlabel('PCA1');ax.set_ylabel('PCA3');ax.set_zlabel('PCA2')
+for group,color in zip(np.unique(subgroup),['indianred','steelblue']):
+    ax.scatter(pca_data.loc[subgroup==group,'PCA1'].values[0],pca_data.loc[subgroup==group,'PCA2'].values[0],
+               pca_data.loc[subgroup==group,'PCA3'].values[0],s=60,edgecolors='white',c=color, label = group)
+plt.legend()
 
 ax2 = fig.add_subplot(122)
-ax2.scatter(pca_data['PCA1'],pca_data['PCA2'],c = colors, edgecolor = 'white',s = 60)
-ax2.set_xlabel('PCA1');ax2.set_ylabel('PCA2')
-
-
-
-kmeans=KMeans(n_clusters=2, init="k-means++", n_init=50, max_iter=500, random_state=42).fit(pca_data)
-
-
-
-dbscan = DBSCAN(eps=0.5, min_samples=13, metric='euclidean', algorithm='auto').fit(pca_data)
-
-dataframe = pd.DataFrame(pca_data, columns=["X", "Y"])
-dataframe["clusters"] = dbscan.labels_
-
-plt.figure(figsize=(8, 6)) #
-plt.scatter(dataframe['X'],dataframe['Y'], c = np.where(dataframe['clusters'] == 0 ,'blue','indianred'),s = 50, edgecolors='white')
-plt.scatter(dataframe.loc[dataframe['clusters']==-1,'X'].values[0],dataframe.loc[dataframe['clusters']==-1,'Y'].values[0], c='indianred', label = 'Group 1')
-plt.scatter(dataframe.loc[dataframe['clusters']==0,'X'].values[0],dataframe.loc[dataframe['clusters']==0,'X'].values[0], c='blue', label = 'Group 0')
+ax2.scatter(pca_data['PCA1'],pca_data['PCA3'],c = colors, edgecolor = 'white',s = 60)
+ax2.set_xlabel('PCA1');ax2.set_ylabel('PCA3')
+for group,color in zip(np.unique(subgroup),['indianred','steelblue']):
+    ax2.scatter(pca_data.loc[subgroup==group,'PCA1'].values[0],pca_data.loc[subgroup==group,'PCA2'].values[0],
+                c=color, label = group)
 plt.legend()
+
+
+# determine the genese with highest and lowest expressions
+th_90 = np.percentile(pca_data['PCA3'],90)
+th_10 = np.percentile(pca_data['PCA3'],10)
+
+pca_data['PCA3']>th_90
+
+
+
+
+102548	F	NA	2*1	II	yes	no
+104338	F	NA	NA	II	yes	no
+105094	F	NA	1*3	NA	yes	no
+109745	F	NA	2.5*2.5*2	III	no	no
+1906415	F	49	1.3*1.7	Ⅱ	no	yes
+1912627	F	65	3.7*2.7*2.3	Ⅱ	yes	no
+1924346	F	46	2*1.3	Ⅲ	no	no
+1926760	F	37	4.8*2.1	III	no	no
+1927842	F	36	3.6*1.3*1.5	Ⅲ	yes	yes
+1933414	F	40	2.9*1.5*1.8	Ⅲ	no	no
+1940640	F	66	3.1*1.2	Ⅱ	yes	no
+2004407	F	64	3*2.5*1.5	III	no	no
+2005288	F	46	2.5*1.8*2	Ⅲ	no	no
+2006047	F	60	2.8*1.9	Ⅲ	yes	no
+2008260	F	59	2*1.9	Ⅲ	no	no
+2009329	F	37	2.2*1.8	Ⅲ	yes	NA
+2009381	F	47	2	NA	no	no
+2009850	F	49	2.6*2.4	Ⅲ	yes	no
+2017611	F	57	1.7*1.2	Ⅱ	yes	no
+2039179	F	42	2.3*1.7	Ⅲ	yes	no
+2040686	F	40	1.7*1*1	Ⅱ	no	no
+2045012	F	40	1.9*1.1	Ⅲ	no	no
+2046297	F	37	5.5*5*1.2	Ⅱ	yes	no
+348981	F	56	8*6*2	Ⅱ-Ⅲ	yes	no
+354300	F	43	2.5*2.5*2	NA	no	no
+359448	F	30	1.5	NA	no	no
+94377	F	NA	2*2	II	yes	yes
+98389	F	NA	2	II	no	no
+98475	F	NA	7.5*2*2	NA	no	no
+99145	F	NA	0.7*0.9	II	yes	no
+
+
+
+
+
+# Differentially expressed genes. I got those from this paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8762060/
+inc_genes_1 = ['COL11A1','CXCL10','KPNA2','PLK1','KIFC1','E2F1','FANCA','RAD54L','FOXM1','MYBL2','HIST2H3C','HIST1H2AH',
+               'TROAP','HIST1H1B','HIST1H2AH','HIST1H3B','HIST1H2BL','KIF2C','CCNB1','CBX2','TMEM132A','HN1','TK1','H2AFX']
+inc_genes_2 = ['LPHN3','MAB21L1','FAT4','RUNX1T1','SEMA6A','TSHZ2','RAI2','CACNA1G','COL4A6','GFRA1','ARHGAP6',
+               'PGM5', 'ABCA10','ABCA9','ABCA8','ALDH1A2','SPTBN4','FLG2','DES','SYNPO2','MYH11','PRDM16','MYOCD','PHYHIP']
+
+grade_dat = pd.DataFrame({'id': ['CA.102548', 'CA.104338', 'CA.105094', 'CA.109745', 'CA.1906415', 'CA.1912627',
+                                 'CA.1924346', 'CA.1926760', 'CA.1927842', 'CA.1933414', 'CA.1940640', 'CA.2004407',
+                                 'CA.2005288', 'CA.2006047', 'CA.2008260', 'CA.2009329', 'CA.2009381', 'CA.2009850',
+                                 'CA.2017611', 'CA.2039179', 'CA.2040686', 'CA.2045012', 'CA.2046297', 'CA.348981',
+                                 'CA.354300', 'CA.359448', 'CA.94377', 'CA.98389', 'CA.98475', 'CA.99145'],
+                          'age': [np.nan, np.nan, np.nan, np.nan, 49, 65, 46, 37, 36, 40, 66, 64, 46, 60, 59, 37, 47,
+                                  49, 57, 42, 40, 40, 37, 56, 43, 30, np.nan, np.nan, np.nan, np.nan],
+                          'grade': [2, 2, np.nan, 3, 2, 2, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, np.nan, 3, 2, 3, 2, 3, 2, 3,
+                                    np.nan, np.nan, 2, 2, np.nan, 2],
+                          'Relapse':['no', 'no', 'no', 'no', 'yes', 'no', 'no', 'no', 'yes', 'no', 'no', 'no', 'no',
+                                     'no', 'no', np.nan, 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no',
+                                     'yes', 'no', 'no', 'no'],
+                          'LN':['yes', 'yes', 'yes', 'no', 'no', 'yes', 'no', 'no', 'yes', 'no', 'yes', 'no', 'no',
+                                'yes', 'no', 'yes', 'no', 'yes', 'yes', 'yes', 'no', 'no', 'yes', 'yes', 'no', 'no',
+                                'yes', 'no', 'no', 'yes']})
+
+grade_dat.index = grade_dat['id']
+grade_dat['age_group'] = np.where(grade_dat['age']>grade_dat['age'].mean(),'old','young')
+# Make sure the ids match
+if np.all(grade_dat.id[0:30] == pca_data.index[0:30]):
+    print("IDs match (y)")
+grade_dat['PCA3'] = pca_data.loc[grade_dat.id,'PCA3'].values
+
+calc_ttest(grade_dat.loc[grade_dat['age']<60,:], 'grade', [2,3], 'PCA3',tick_labels = None, colors = ['blue','red'], plot_result = False, return_ax = False, force_ttest = False, test_type = '2samp', verbose = False, y_label = None)
+grade_dat.loc[grade_dat['grade'] ==2,'PCA3'].mean()
+grade_dat.loc[grade_dat['grade'] ==3,'PCA3'].mean()
+
+
+inc_genes_1.reverse()
+inc_genes_2.reverse()
+inc_genes = inc_genes_2+inc_genes_1
+
+
+plt_comp = pca_comp.loc[inc_genes,'PCA3'],
+colors = ['indianred']*len(inc_genes_1)+['steelblue']*len(inc_genes_2)
+fig, ax = plt.subplots(figsize=(4, 7.5))
+ax.barh(plt_comp.index, plt_comp, color=colors, edgecolor='black', linewidth=0.75)
+ax.barh(plt_comp.index[0], plt_comp.iloc[0], color=colors[0], edgecolor='black', linewidth=0.75, label = 'Gene group 1')
+ax.barh(plt_comp.index[-1], plt_comp.iloc[-1], color=colors[-1], edgecolor='black', linewidth=0.75, label = 'Gene group 2')
+ax.set_title('Gene groups (as per the paper)\nand their loadings on PC3')
+ax.set_xlabel('PCA3 loading', size=13)
+ax.set_ylabel('Chosen genes', size=13)
+plt.legend()
+plt.subplots_adjust(left=0.3, right=0.975, top=0.93, bottom=0.07)
+ax.set_ylim(-0.75,len(inc_genes)+3)
