@@ -173,7 +173,7 @@ def get_components(pca,or_cols,plot_result = False, text_threshold = 0.3,max_plo
     if plot_result:
         plt_dat = comp_th
 
-        x_range=(np.min(plt_dat)*1.05,np.max(plt_dat)*1.05)
+        x_range=(np.min(np.min(plt_dat))*1.05,np.max(np.max(plt_dat))*1.05)
         fig_width = np.min((18,2+3*red_comp_count))
         fig_height = np.min((8,1+1.5*red_comp_count))
         fig, axes = plt.subplots(ncols=red_comp_count, figsize=(fig_width, fig_height))
