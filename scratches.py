@@ -109,12 +109,13 @@ data['x2']*=2
 # compute the covariance matrix
 cov_mat = np.cov(data,rowvar=0)
 
-# find the eigenvalues and eigenvectors of the covariance matrix.
 # from: https://builtin.com/data-science/step-step-explanation-principal-component-analysis
 # eigenvectors are the directions of axies of most variance (i.e., axes of principle components).
 # Eigenvalues are the coefficients attached to eigenvectors, which reflects the amount of variance carried in each PC
 # Geometrically speaking, principal components represent the directions of the data that explain a maximal amount of
 # variance, that is to say, the lines that capture most information of the data.
+
+# find the eigenvalues and eigenvectors of the covariance matrix.
 values, vectors = np.linalg.eig(cov_mat)
 slopes = [vectors.T[np.abs(values)== np.max(np.abs(values))], vectors.T[np.abs(values)== np.min(np.abs(values))]]
 slopes = [item[0,1]/item[0,0] for item in slopes]
@@ -233,7 +234,7 @@ n_comp = 2
 pca = PCA(n_components=n_comp)
 data_pca = pca.fit_transform(data)
 
-comp = get_components(pca,data.columns, True,0.35)
+comp = get_components(pca,or_cols = data.columns, plot_result= True, text_threshold=0.35)
 comp
 
 
@@ -338,8 +339,8 @@ pca_data['PCA3']>th_90
 
 
 # Differentially expressed genes. I got those from this paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8762060/
-inc_genes_1 = ['COL11A1','CXCL10','KPNA2','PLK1','KIFC1','E2F1','FANCA','RAD54L','FOXM1','MYBL2','HIST2H3C','HIST1H2AH',
-               'TROAP','HIST1H1B','HIST1H2AH','HIST1H3B','HIST1H2BL','KIF2C','CCNB1','CBX2','TMEM132A','HN1','TK1','H2AFX']
+inc_genes_1 = ['COL11A1','CXCL10','KPNA2','PLK1','KIFC1','E2F1','FANCA','RAD54L','FOXM1','MYBL2','HIST2H3C','HIST1H2A',
+               'HIST1H2AB','TROAP','HIST1H1B','HIST1H2AH','HIST1H3B','HIST1H2BL','KIF2C','CCNB1','CBX2','TMEM132A','HN1','TK1','H2AFX']
 inc_genes_2 = ['LPHN3','MAB21L1','FAT4','RUNX1T1','SEMA6A','TSHZ2','RAI2','CACNA1G','COL4A6','GFRA1','ARHGAP6',
                'PGM5', 'ABCA10','ABCA9','ABCA8','ALDH1A2','SPTBN4','FLG2','DES','SYNPO2','MYH11','PRDM16','MYOCD','PHYHIP']
 
@@ -376,7 +377,7 @@ inc_genes_2.reverse()
 inc_genes = inc_genes_2+inc_genes_1
 
 
-plt_comp = pca_comp.loc[inc_genes,'PCA3'],
+plt_comp = pca_comp.loc[inc_genes,'PCA3']
 colors = ['indianred']*len(inc_genes_1)+['steelblue']*len(inc_genes_2)
 fig, ax = plt.subplots(figsize=(4, 7.5))
 ax.barh(plt_comp.index, plt_comp, color=colors, edgecolor='black', linewidth=0.75)

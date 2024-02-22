@@ -131,8 +131,9 @@ def plot_pca(pca):
     :param pca: fitted pca object
     :return: a scree plot of pca eigenvalues
     """
-    eigenvalues = pca.explained_variance_
+    eigenvalues = pca.explained_variance_ratio_
     n_comp = pca.n_components
+    fig,ax = plt.subplots(figsize = (5,4))
     plt.plot(eigenvalues, color = 'steelblue')
     plt.scatter(np.arange(n_comp),eigenvalues, edgecolor = 'steelblue', color = 'white', linewidth = 2, zorder = 2)
     plt.title('Scree plot of PCA eigenvalues', size = 18)
@@ -156,7 +157,7 @@ def get_components(pca,or_cols,plot_result = False, text_threshold = 0.3,max_plo
     comp_or = pd.DataFrame(pca.components_.T, index=or_cols, columns=['PCA'+str(i+1) for i in range(n_comp)])
 
     # create a dataframe with reduced number of features for printing and plotting
-    comp_th = np.round(comp_or, 3)
+    comp_th = np.round(comp_or, 4)
     if  max_plot_feature < comp_or.shape[0]:
         threshold = np.quantile(np.abs(comp_or), 1 - max_plot_feature / comp_or.shape[0], axis=0)
         comp_th[np.abs(comp_th)<threshold] = 0
@@ -167,14 +168,14 @@ def get_components(pca,or_cols,plot_result = False, text_threshold = 0.3,max_plo
     comp_txt = comp_th.astype(str)
     comp_txt[np.abs(comp_or) < text_threshold] = 0
     comp_txt = pd.concat([comp_txt, pd.DataFrame([pca.explained_variance_ratio_], columns=comp_txt.columns, index=['Explained Var'])])
-    print(comp_txt)
+    #print(comp_txt)
     comp_or = pd.concat([comp_or, pd.DataFrame([pca.explained_variance_ratio_], columns=comp_or.columns, index=['Explained Var'])])
     if plot_result:
-        plt_dat = comp_th.iloc[0:-1,:]
+        plt_dat = comp_th
 
         x_range=(np.min(plt_dat)*1.05,np.max(plt_dat)*1.05)
         fig_width = np.min((18,2+3*red_comp_count))
-        fig_height = np.min((9,1+1.5*red_comp_count))
+        fig_height = np.min((8,1+1.5*red_comp_count))
         fig, axes = plt.subplots(ncols=red_comp_count, figsize=(fig_width, fig_height))
         colors = ['olivedrab', 'crimson','darkgoldenrod','steelblue','darkmagenta','grey','palevioletred','sienna','beige','coral']
         for i, col, label,ax in zip(np.arange(red_comp_count), colors, plt_dat.columns, axes.ravel()):
