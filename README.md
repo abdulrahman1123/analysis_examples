@@ -12,3 +12,5 @@ Neural Networks: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 
 Principal Component Analysis: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=PCA.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/PCA_colab.ipynb)
 
+Principal Component Analysis: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=KNN.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/KNN.ipynb)
+
