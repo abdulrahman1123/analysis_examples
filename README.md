@@ -4,6 +4,8 @@ The aim is to present comprehensive examples of some analytical methods so that 
 
 To access tutorials of this repository on binder:
 
+Jupyter Notebook Introduction: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=Introduction.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/Introduction.ipynb)
+
 Logistic Regression: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=logistic_regression.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/logistic_regression_colab.ipynb)
 
 SVM: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/abdulrahman1123/analysis_examples.git/HEAD?labpath=svm.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abdulrahman1123/analysis_examples/blob/main/svm_colab.ipynb)
