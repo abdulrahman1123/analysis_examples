@@ -98,15 +98,26 @@ print(data.shape, data.dtype)
 print(data[:100])  # first few tokens
 
 # split data into training and testing
-n = int(0.1*len(data))
-train_data = []
-val_data = []
+n = int(0.1 * len(data))  # size of each chunk (10 parts)
+idx = torch.arange(len(data))
+
+train_idx = []
+val_idx = []
+
 for i in range(10):
-    start =n*i
-    stop = int(0.9*n*(i+1))
-    print(start, stop,n*(i+1))
-    train_data += data[start:stop]
-    val_data += data[stop:n*(i+1)]
+    start = n * i
+    stop = start+int(0.9 * n)
+    print(start,stop,n * (i + 1))
+    train_idx.append(idx[start:stop])
+    val_idx.append(idx[stop:n * (i + 1)])
+
+train_idx = torch.cat(train_idx)
+val_idx = torch.cat(val_idx)
+
+train_data = data[train_idx]
+val_data = data[val_idx]
+
+print(train_data.shape, val_data.shape)
 
 
 
