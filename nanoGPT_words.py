@@ -1,18 +1,14 @@
-# Tutorial for building a chatGPT-like program
-# start by showing that chatGPT is probabilistic not deterministic
-# the paper is Attention is all you need
-# the source of this tutorial is the following:
-#   - https://colab.research.google.com/drive/1JMLa53HDuA-i7ZBmqV7ZnA3c_fvtXnx-?usp=sharing
-#   - chatGPT
-#   - https://jitter.video/ for gif creation
-# Building a nano-GPT Model
-''' This tutorial will show you how to build a small LLM, where the model creates a text based on the input text.'''
-
+'''
+This code is modified from https://colab.research.google.com/drive/1JMLa53HDuA-i7ZBmqV7ZnA3c_fvtXnx-?usp=sharing,
+which is explained in this video https://www.youtube.com/watch?v=kCc8FmEb1nY&t=2409s
+I modified it to take words as tokens
+'''
 ### Import libraries
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import requests
+from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, processors
 
 torch.manual_seed(111)
 
@@ -20,12 +16,12 @@ torch.manual_seed(111)
 batch_size = 64 # how many independent sequences will we process in parallel... will be referred to as B in the following code
 block_size = 256 # what is the maximum context length for predictions ... will be referred to as T in the following code
 
-max_iters = 5000
+max_iters = 10000
 eval_interval = 500
-learning_rate = 3e-4
+learning_rate = 9e-4
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
-n_embd = 384
+n_embd = 512
 n_head = 6
 n_layer = 6
 n_embd = (n_embd//n_head)*n_head # inside the code, head_size is calculated as n_embd//n_head, which might give an error if the result are not a full integer
@@ -33,35 +29,73 @@ dropout = 0.2
 # ------------
 
 # Load the required data. Here we use tinyShakespeare. You can use your own data if you want.
-url = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
-response = requests.get(url) # gt the contents of the url. This gives a response that includes response.text (among other things)
-text = response.text
+url1 = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
+url1='https://www.gutenberg.org/cache/epub/100/pg100.txt'
+url2 = 'https://www.gutenberg.org/cache/epub/11/pg11.txt' # Alice in wonderland
+url3 = 'https://www.gutenberg.org/cache/epub/1342/pg1342.txt' # pride and prejudice
+url4 = 'https://www.gutenberg.org/cache/epub/2701/pg2701.txt' # moby dick
+url5 = 'https://www.gutenberg.org/cache/epub/84/pg84.txt'
+url6 = 'https://www.gutenberg.org/cache/epub/145/pg145.txt'
+url7 = 'https://www.gutenberg.org/cache/epub/67979/pg67979.txt'
+texts = [requests.get(url).text for url in [url1,url2,url3,url4,url5,url6,url7]] # gt the contents of the url. This gives a response that includes response.text (among other things)
+texts = [text[0:text.find('*** END OF THE PROJECT GUTENBERG')].replace('\r','').replace('\n\n','\r\r').replace('\n',' ').replace('\r\r','\n') for text in texts]
+text = '\n\n'.join(texts)
 
 # check the downloaded text
 print("length of dataset in characters: ", len(text),'\n ------------------------------------')
 print(text[:500])
 
 
-# here are all the unique characters that occur in this text
-chars = sorted(list(set(text)))
-vocab_size = len(chars)
-print(''.join(chars))
-print(vocab_size)
 
+# Initialize a ByteLevel BPE tokenizer
+tokenizer = Tokenizer(models.BPE(unk_token="<UNK>"))
+trainer = trainers.BpeTrainer(
+    vocab_size=10000,
+    min_frequency=2,
+    special_tokens=["<PAD>", "<UNK>", "<BOS>", "<EOS>"]
+)
 
-# We will tokenize the text: convert characters to integer values
-stoi ={ch:i for i,ch in enumerate(chars)} # string to integer dictionary
-itos = {i:ch for i,ch in enumerate(chars)}
-encode = lambda s: [stoi[c]for c in s] # encoder function: take a string, output a list of integers
-decode = lambda l: ''.join([itos[i] for i in l]) # decoder function: take a list of integers, output a string
-print('Encoding of "hello"           → ', encode("hole"))
-print('Decoding of [46, 53, 50, 43]  ← ', decode([46, 53, 50, 43]))
+# ByteLevel pre-tokenizer (splits into byte-level pieces, can fully reconstruct text)
+tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
+tokenizer.decoder = decoders.ByteLevel()
+tokenizer.post_processor = processors.ByteLevel(trim_offsets=True)
 
+# Train directly on your dataset string (in-memory, no saving to disk)
+tokenizer.train_from_iterator([text], trainer=trainer)
 
-# let's now encode the entire text dataset and store it into a torch.Tensor
+# ---------------------------
+# Example usage
+# ---------------------------
+
+s = "The quick brown fox jumps over the lazy dog"
+
+encoded = tokenizer.encode(s)
+print("Encoded IDs:", encoded.ids)
+print("Tokens:", encoded.tokens)
+
+decoded = tokenizer.decode(encoded.ids)
+print("Decoded:", decoded)
+
+# ---------------------------
+# Use with your model
+# ---------------------------
+
+encode = lambda s: tokenizer.encode(s).ids
+decode = lambda l: tokenizer.decode(l)
+vocab_size = tokenizer.get_vocab_size()
+
+print("Vocab size:", vocab_size)
+
+# Encode dataset
 data = torch.tensor(encode(text), dtype=torch.long)
 print(data.shape, data.dtype)
-print(data[:100]) # the 1000 characters we looked at earier will to the GPT look like this
+print(data[:50])
+
+
+# Encode the entire dataset
+data = torch.tensor(encode(text), dtype=torch.long)
+print(data.shape, data.dtype)
+print(data[:100])  # first few tokens
 
 # split data into training and testing
 n = int(0.9*len(data)) # first 90% will be train, rest val
@@ -75,6 +109,7 @@ for t in range(block_size):
     context = x[:t+1]
     target = y[t]
     print(f"when input is {context} the target: {target}")
+    print(f"when input is {decode(context.tolist())} ... the target is: {decode([target.tolist()])}")
 
 
 
@@ -195,27 +230,9 @@ class Block(nn.Module):
 
 
 
-xb, yb = get_batch('train')
-print('inputs:')
-print(xb.shape)
-print(xb)
-print('targets:')
-print(yb.shape)
-print(yb)
-
-print('----')
-
-for b in range(batch_size): # batch dimension
-    for t in range(block_size): # time dimension
-        context = xb[b, :t+1]
-        target = yb[b,t]
-        print(f"when input is {context.tolist()} the target: {target}")
-
-
-
 # embeddings are learnt vectors, whose values represent the word's (or letter's) relationship to other words (or letteres)
 # it can be used  to find synonims, translation, classification ... etc
-# when we talk about letters, it is more about the letter's context. in other words, it represents patterns of letter usage 
+# when we talk about letters, it is more about the letter's context. in other words, it represents patterns of letter usage
 # rather than semantic meaning. for example, t & h often appear together, so their embeddings may become related
 # Embeddings are what gets 'learnt' in the context of LLM
 # TOOD: check embedding of t and h .. and q and u ... and z
