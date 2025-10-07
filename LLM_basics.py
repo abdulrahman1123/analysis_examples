@@ -68,10 +68,10 @@ n = int(0.9*len(data)) # first 90% will be train, rest val
 train_data = data[:n]
 val_data = data[n:]
 
-block_size = 8
-x = train_data[:block_size]
-y = train_data[1:block_size+1]
-for t in range(block_size):
+l_block_size = 8
+x = train_data[:l_block_size]
+y = train_data[1:l_block_size+1]
+for t in range(l_block_size):
     context = x[:t+1]
     target = y[t]
     print(f"when input is {context} the target: {target}")

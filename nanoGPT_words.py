@@ -13,12 +13,12 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, pr
 torch.manual_seed(111)
 
 # hyperparameters
-batch_size = 64 # how many independent sequences will we process in parallel... will be referred to as B in the following code
+batch_size = 128 # how many independent sequences will we process in parallel... will be referred to as B in the following code
 block_size = 256 # what is the maximum context length for predictions ... will be referred to as T in the following code
 
 max_iters = 10000
 eval_interval = 500
-learning_rate = 9e-4
+learning_rate = 3e-4
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
 n_embd = 512
@@ -50,7 +50,7 @@ print(text[:500])
 # Initialize a ByteLevel BPE tokenizer
 tokenizer = Tokenizer(models.BPE(unk_token="<UNK>"))
 trainer = trainers.BpeTrainer(
-    vocab_size=10000,
+    vocab_size=6000,
     min_frequency=2,
     special_tokens=["<PAD>", "<UNK>", "<BOS>", "<EOS>"]
 )
@@ -98,19 +98,15 @@ print(data.shape, data.dtype)
 print(data[:100])  # first few tokens
 
 # split data into training and testing
-n = int(0.9*len(data)) # first 90% will be train, rest val
-train_data = data[:n]
-val_data = data[n:]
-
-block_size = 8
-x = train_data[:block_size]
-y = train_data[1:block_size+1]
-for t in range(block_size):
-    context = x[:t+1]
-    target = y[t]
-    print(f"when input is {context} the target: {target}")
-    print(f"when input is {decode(context.tolist())} ... the target is: {decode([target.tolist()])}")
-
+n = int(0.1*len(data))
+train_data = []
+val_data = []
+for i in range(10):
+    start =n*i
+    stop = int(0.9*n*(i+1))
+    print(start, stop,n*(i+1))
+    train_data += data[start:stop]
+    val_data += data[stop:n*(i+1)]
 
 
 
@@ -137,6 +133,16 @@ def estimate_loss():
         out[split] = losses.mean()
     model.train()
     return out
+
+
+def lr_lambda(step):
+    warmup_steps = 1000
+    if step < warmup_steps:
+        return float(step) / float(max(1, warmup_steps))  # linear warmup
+    # cosine decay after warmup
+    progress = float(step - warmup_steps) / float(max(1, max_iters - warmup_steps))
+    return 0.5 * (1.0 + torch.cos(torch.tensor(progress * 3.1415926535)))  # cosine decay
+
 
 
 class Head(nn.Module):
@@ -273,7 +279,7 @@ class BigramLanguageModel(nn.Module):
             B, T, C = logits.shape
             logits = logits.view(B*T, C)
             targets = targets.view(B*T)
-            loss = F.cross_entropy(logits, targets)
+            loss = F.cross_entropy(logits, targets, label_smoothing=0.1)
 
         return logits, loss
 
@@ -302,7 +308,8 @@ m = model.to(device)
 print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
 
 # create an optimizer
-optimizer = torch.optim.AdamW(m.parameters(), lr = learning_rate)
+optimizer = torch.optim.AdamW(m.parameters(), lr = learning_rate, weight_decay=1e-2)
+scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
 for iter in range(max_iters):
 
@@ -319,6 +326,7 @@ for iter in range(max_iters):
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     optimizer.step()
+    scheduler.step()
 
 print(loss.item())
 
