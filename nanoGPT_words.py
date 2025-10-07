@@ -13,10 +13,10 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, pr
 torch.manual_seed(111)
 
 # hyperparameters
-batch_size = 128 # how many independent sequences will we process in parallel... will be referred to as B in the following code
+batch_size = 32 # how many independent sequences will we process in parallel... will be referred to as B in the following code
 block_size = 256 # what is the maximum context length for predictions ... will be referred to as T in the following code
 
-max_iters = 10000
+max_iters = 5000
 eval_interval = 500
 learning_rate = 3e-4
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
