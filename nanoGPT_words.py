@@ -9,20 +9,22 @@ import torch.nn as nn
 from torch.nn import functional as F
 import requests
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, processors
+import torch_directml
 
 torch.manual_seed(111)
 
 # hyperparameters
-batch_size = 32 # how many independent sequences will we process in parallel... will be referred to as B in the following code
-block_size = 256 # what is the maximum context length for predictions ... will be referred to as T in the following code
+batch_size = 64 # how many independent sequences will we process in parallel... will be referred to as B in the following code
+block_size = 128 # what is the maximum context length for predictions ... will be referred to as T in the following code
 
 max_iters = 5000
 eval_interval = 500
 learning_rate = 3e-4
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = torch_directml.device()
 eval_iters = 200
-n_embd = 512
-n_head = 6
+n_embd = 256
+n_head = 4
 n_layer = 6
 n_embd = (n_embd//n_head)*n_head # inside the code, head_size is calculated as n_embd//n_head, which might give an error if the result are not a full integer
 dropout = 0.2
