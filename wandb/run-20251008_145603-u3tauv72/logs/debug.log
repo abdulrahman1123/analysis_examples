@@ -1,0 +1,46 @@
+2025-10-08 14:56:03,849 INFO    MainThread:10920 [wandb_setup.py:_flush():81] Current SDK version is 0.22.2
+2025-10-08 14:56:03,851 INFO    MainThread:10920 [wandb_setup.py:_flush():81] Configure stats pid to 10920
+2025-10-08 14:56:03,851 INFO    MainThread:10920 [wandb_setup.py:_flush():81] Loading settings from C:\Users\Sawalma_A\.config\wandb\settings
+2025-10-08 14:56:03,852 INFO    MainThread:10920 [wandb_setup.py:_flush():81] Loading settings from \\klinik.uni-wuerzburg.de\homedir\UserData11\Sawalma_A\data\Documents\GitHub\analysis_examples\wandb\settings
+2025-10-08 14:56:03,853 INFO    MainThread:10920 [wandb_setup.py:_flush():81] Loading settings from environment variables
+2025-10-08 14:56:03,853 ERROR   MainThread:10920 [wandb_setup.py:_flush():83] error in wandb.init()
+Traceback (most recent call last):
+  File "C:\Users\Sawalma_A\AppData\Roaming\Python\Python312\site-packages\IPython\core\interactiveshell.py", line 3699, in run_code
+    exec(code_obj, self.user_global_ns, self.user_ns)
+  File "<ipython-input-3-f5d486b43557>", line 37, in <module>
+    wandb.init(
+  File "C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\Lib\site-packages\wandb\sdk\wandb_init.py", line 1601, in init
+    wandb._sentry.reraise(e)
+  File "C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\Lib\site-packages\wandb\analytics\sentry.py", line 162, in reraise
+    raise exc.with_traceback(sys.exc_info()[2])
+  File "C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\Lib\site-packages\wandb\sdk\wandb_init.py", line 1523, in init
+    wi.maybe_login(init_settings)
+  File "C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\Lib\site-packages\wandb\sdk\wandb_init.py", line 190, in maybe_login
+    wandb_login._login(
+  File "C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\Lib\site-packages\wandb\sdk\wandb_login.py", line 320, in _login
+    key, key_status = wlogin.prompt_api_key(referrer=referrer)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\Lib\site-packages\wandb\sdk\wandb_login.py", line 245, in prompt_api_key
+    raise UsageError("api_key not configured (no-tty). call " + directive)
+wandb.errors.errors.UsageError: api_key not configured (no-tty). call wandb.login(key=[your_api_key])
+2025-10-08 14:56:03,865 INFO    MainThread:10920 [wandb_init.py:setup_run_log_directory():705] Logging user logs to \\klinik.uni-wuerzburg.de\homedir\UserData11\Sawalma_A\data\Documents\GitHub\analysis_examples\wandb\run-20251008_145603-u3tauv72\logs\debug.log
+2025-10-08 14:56:03,867 INFO    MainThread:10920 [wandb_init.py:setup_run_log_directory():706] Logging internal logs to \\klinik.uni-wuerzburg.de\homedir\UserData11\Sawalma_A\data\Documents\GitHub\analysis_examples\wandb\run-20251008_145603-u3tauv72\logs\debug-internal.log
+2025-10-08 14:56:03,867 INFO    MainThread:10920 [wandb_init.py:init():832] calling init triggers
+2025-10-08 14:56:03,868 INFO    MainThread:10920 [wandb_init.py:init():837] wandb.init called with sweep_config: {}
+config: {'vocab_size': 12000, 'n_embd': 252, 'block_size': 128, 'n_head': 6, 'dropout': 0.1, 'n_layer': 6, 'learning_rate': 0.0003, 'batch_size': 64, 'max_iters': 5000, 'eval_interval': 500, 'clip_norm': 1.0, '_wandb': {}}
+2025-10-08 14:56:03,868 INFO    MainThread:10920 [wandb_init.py:init():880] starting backend
+2025-10-08 14:56:06,119 INFO    MainThread:10920 [wandb_init.py:init():883] sending inform_init request
+2025-10-08 14:56:06,234 INFO    MainThread:10920 [wandb_init.py:init():891] backend started and connected
+2025-10-08 14:56:06,236 INFO    MainThread:10920 [wandb_init.py:init():961] updated telemetry
+2025-10-08 14:56:06,489 INFO    MainThread:10920 [wandb_init.py:init():985] communicating run to backend with 90.0 second timeout
+2025-10-08 14:56:06,957 INFO    MainThread:10920 [wandb_init.py:init():1036] starting run threads in backend
+2025-10-08 14:56:07,257 INFO    MainThread:10920 [wandb_run.py:_console_start():2509] atexit reg
+2025-10-08 14:56:07,258 INFO    MainThread:10920 [wandb_run.py:_redirect():2357] redirect: wrap_raw
+2025-10-08 14:56:07,259 INFO    MainThread:10920 [wandb_run.py:_redirect():2426] Wrapping output streams.
+2025-10-08 14:56:07,259 INFO    MainThread:10920 [wandb_run.py:_redirect():2449] Redirects installed.
+2025-10-08 14:56:07,261 INFO    MainThread:10920 [wandb_init.py:init():1076] run started, returning control to user process
+2025-10-08 14:56:17,079 INFO    MainThread:10920 [wandb_run.py:_finish():2275] finishing run abdulrahman-sawalma/llm-hyperparameter-study/u3tauv72
+2025-10-08 14:56:17,080 INFO    MainThread:10920 [wandb_run.py:_atexit_cleanup():2474] got exitcode: 0
+2025-10-08 14:56:17,081 INFO    MainThread:10920 [wandb_run.py:_restore():2456] restore
+2025-10-08 14:56:17,081 INFO    MainThread:10920 [wandb_run.py:_restore():2462] restore done
+2025-10-08 14:56:17,940 INFO    MainThread:10920 [wandb_run.py:_footer_sync_info():3872] logging synced files

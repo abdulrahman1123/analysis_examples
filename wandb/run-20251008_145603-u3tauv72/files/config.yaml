@@ -1,0 +1,79 @@
+_wandb:
+    value:
+        cli_version: 0.22.2
+        e:
+            po5flk30p4wjd2clt53a1ygv44cej5ht:
+                args:
+                    - --mode=client
+                    - --host=127.0.0.1
+                    - --port=63328
+                cpu_count: 14
+                cpu_count_logical: 14
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "42303746048"
+                        used: "30874918912"
+                email: abdulrahman.sawalma@gmail.com
+                executable: C:\Users\Sawalma_A\AppData\Local\Programs\Python\Python312\python.exe
+                git:
+                    commit: 21fec9dc8740dbe309922e09e270374037676859
+                    remote: https://github.com/abdulrahman1123/analysis_examples.git
+                gpu: NVIDIA GeForce RTX 4060
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 3072
+                      memoryTotal: "8585740288"
+                      name: NVIDIA GeForce RTX 4060
+                      uuid: GPU-6b93782f-af01-ecbd-e404-f5de24ae6356
+                host: DUKW4400
+                memory:
+                    total: "33775415296"
+                os: Windows-11-10.0.26100-SP0
+                program: <python with no main file>
+                python: CPython 3.12.10
+                root: \\klinik.uni-wuerzburg.de\homedir\UserData11\Sawalma_A\data\Documents\GitHub\analysis_examples
+                startedAt: "2025-10-08T12:56:03.817599Z"
+                writerId: po5flk30p4wjd2clt53a1ygv44cej5ht
+        m: []
+        python_version: 3.12.10
+        t:
+            "1":
+                - 1
+                - 105
+            "2":
+                - 1
+                - 105
+            "3":
+                - 2
+                - 16
+            "4": 3.12.10
+            "5": 0.22.2
+            "8":
+                - 3
+                - 13
+            "12": 0.22.2
+            "13": windows-amd64
+batch_size:
+    value: 64
+block_size:
+    value: 128
+clip_norm:
+    value: 1
+dropout:
+    value: 0.1
+eval_interval:
+    value: 500
+learning_rate:
+    value: 0.0003
+max_iters:
+    value: 5000
+n_embd:
+    value: 252
+n_head:
+    value: 6
+n_layer:
+    value: 6
+vocab_size:
+    value: 12000
