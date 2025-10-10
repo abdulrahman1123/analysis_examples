@@ -24,8 +24,8 @@ config = wandb.config
 
 
 # hyperparameters
-batch_size = 64 # how many independent sequences will we process in parallel... will be referred to as B in the following code
-block_size = 128 # what is the maximum context length for predictions ... will be referred to as T in the following code
+batch_size = 16 # how many independent sequences will we process in parallel... will be referred to as B in the following code
+block_size = 32 # what is the maximum context length for predictions ... will be referred to as T in the following code
 
 max_iters = 5000
 eval_interval = 500
@@ -37,9 +37,9 @@ elif not platform.system()=='Darwin':
 else:
     device = torch_directml.device()
 eval_iters = 200
-n_embd = 256
-n_head = 6
-n_layer = 6
+n_embd = 128
+n_head = 3
+n_layer = 3
 n_embd = (n_embd//n_head)*n_head # inside the code, head_size is calculated as n_embd//n_head, which might give an error if the result are not a full integer
 dropout = 0.1
 clip_norm = 1.0
@@ -82,6 +82,7 @@ train_data, val_data = train_data.to(device), val_data.to(device)
 # -------------------------
 # Initialize wandb
 # -------------------------
+# TOOD: maybe you will add lists of parameters
 run = wandb.init(
     project="llm-hyperparameter-study",
     config={
@@ -89,6 +90,7 @@ run = wandb.init(
         "n_embd": n_embd,
         "block_size": block_size,
         "n_head": n_head,
+        'eval_iters': eval_iters,
         "dropout": dropout,
         "n_layer": n_layer,
         "learning_rate": learning_rate,
@@ -103,40 +105,37 @@ config = run.config
 model = BigramLanguageModel(config.vocab_size, config.n_embd, config.block_size,
                             config.n_head, config.dropout, config.n_layer, device)
 m = model.to(device)
+wandb.watch(m, log="all")  # tracks gradients, parameters, etc.
 print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
 
 # create an optimizer
-optimizer = torch.optim.AdamW(m.parameters(), lr = config.learning_rate, betas=(0.9, 0.95), weight_decay=0.1)
+optimizer = torch.optim.AdamW(m.parameters(), lr = config.learning_rate, betas=(0.9, 0.95), weight_decay=0.01)
 
 scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=get_lr_lambda(max_iters))
 
 for iter in range(config.max_iters):
 
-    # every once in a while evaluate the loss on train and val sets
+    # Evaluate periodically
     if iter % config.eval_interval == 0 or iter == config.max_iters - 1:
-        losses = estimate_loss(model,eval_iters, train_data, val_data, config.batch_size, config.block_size)
+        losses = estimate_loss(model, config.eval_iters, train_data, val_data, config.batch_size, config.block_size)
         print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
-        # Log losses to wandb
+
+        # Log metrics
         wandb.log({
             "train_loss": losses['train'],
             "val_loss": losses['val'],
-            "step": iter,
-            "learning_rate": scheduler.get_last_lr()[0]
+            "learning_rate": scheduler.get_last_lr()[0],
+            "step": iter
         })
 
-    # Sample a batch
-    xb, yb = get_batch('train', config.batch_size, config.block_size)
+    # Training step
+    xb, yb = get_batch(train_data, config.batch_size, config.block_size)
     xb, yb = xb.to(device), yb.to(device)
 
-    # Forward/backward pass
     logits, loss = m(xb, yb)
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
-
-    # Clip gradients
     torch.nn.utils.clip_grad_norm_(m.parameters(), config.clip_norm)
-
-    # Optimizer step
     optimizer.step()
     scheduler.step()
 
