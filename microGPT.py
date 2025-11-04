@@ -1,3 +1,16 @@
+'''
+This code is modified from https://colab.research.google.com/drive/1JMLa53HDuA-i7ZBmqV7ZnA3c_fvtXnx-?usp=sharing,
+which is explained in this video https://www.youtube.com/watch?v=kCc8FmEb1nY&t=2409s
+I modified it to take words as tokens
+'''
+import torch
+import torch.nn as nn
+from torch.nn import functional as F
+import requests
+from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, processors
+import platform
+from tokenizers.processors import TemplateProcessing
+
 
 import torch
 import torch.nn as nn
@@ -258,8 +271,49 @@ def train_test_split(data, train_ratio=0.9):
 
 
 
+####################
+# hyperparameters
+####################
+batch_size = 16 # how many independent sequences will we process in parallel
+block_size = 32 # what is the maximum context length for predictions
+max_iters = 1000
+eval_interval = 100
+learning_rate = 2e-4
+device = torch.device("cpu") # change it to mps for Mac, and Cuda if you have Nvidia graphics
+eval_iters = 200
+n_embd = 128
+n_head = 3
+n_layer = 3
+n_embd = (n_embd//n_head)*n_head # inside the code, head_size is calculated as n_embd//n_head, which might give an error if the result are not a full integer
+dropout = 0.1
+clip_norm = 1.0
+vocab_size = 20000
+# ------------
+
+## Download Shakespeare's work
+url1 = "https://www.gutenberg.org/cache/epub/100/pg100.txt"
+text = requests.get(url1).text.replace('\r','')
+text = text[text.find('THE SONNETS\n\n')::] # remove text introduction
+
+#create tokens
+encode,decode, tokenizer, vocab_size = tokenize(text, vocab_size)
+
+# check what it does
+encoding = encode('Greetings, My king!')
+for item in encoding:
+    print(f"{decode([item])} ----> {item}")
 
 
+# Encode the entire dataset
+data = torch.tensor(encode(text), dtype=torch.long)
 
 
+# split into training and testing
+train_data, val_data = train_test_split(data, 0.9)
+train_data, val_data = train_data.to(device), val_data.to(device)
+print(f'Train size = {train_data.shape[0]} tokens ... Validation size = {val_data.shape[0]} tokens')
 
+# create the model, and optimize the learning process
+model = BigramLanguageModel(vocab_size, n_embd, block_size, n_head, dropout, n_layer, device).to(device)
+optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=get_lr_lambda(max_iters=max_iters, warmup_steps=200))
