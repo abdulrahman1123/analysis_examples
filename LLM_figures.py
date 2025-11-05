@@ -125,7 +125,7 @@ fig_dir = os.path.join(base_dir,'figures')
 if not os.path.exists(fig_dir):
     os.makedirs(fig_dir)
 
-for i in range(20):
+for i in range(40):
     rects = []
     text_objs = []
     colors = ['green']*bl+['red']
@@ -157,7 +157,7 @@ for i in range(20):
     for rect in rects:
         ax.add_patch(rect)
 
-    fig.savefig(os.path.join(fig_dir,f'iter {i}.png'), dpi = 300)
+    fig.savefig(os.path.join(fig_dir,f'iter {i}.png'), dpi = 200)
     for text in text_objs:
         text.remove()
 
@@ -192,7 +192,7 @@ def create_gif_from_list(image_paths, output_gif, duration=500, loop=0, resize=N
 
 # Usage
 
-image_list = [os.path.join(fig_dir,f'iter {i}.png') for i in range(20)]
+image_list = [os.path.join(fig_dir,f'iter {i}.png') for i in range(40)]
 image_list = [image_list[0]]*2 + image_list + [image_list[-1]]*2
 output_gif = os.path.join(fig_dir,f'animation.gif')
 create_gif_from_list(image_list, output_gif, duration=750, resize=None)
