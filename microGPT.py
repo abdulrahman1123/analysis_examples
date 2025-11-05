@@ -242,7 +242,6 @@ def train_test_split(data, train_ratio=0.9):
     for i in range(10):
         start = n * i
         stop = start + int(train_ratio * n)
-        print(start, stop, n * (i + 1))
         train_idx.append(idx[start:stop])
         val_idx.append(idx[stop:n * (i + 1)])
 
@@ -252,7 +251,6 @@ def train_test_split(data, train_ratio=0.9):
     train_data = data[train_idx]
     val_data = data[val_idx]
 
-    print('train data shape: ', train_data.shape, 'val data shape:', val_data.shape)
     return train_data, val_data
 
 def train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, block_size, device,optimizer,scheduler):
