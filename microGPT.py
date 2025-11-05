@@ -253,7 +253,7 @@ def train_test_split(data, train_ratio=0.9):
 
     return train_data, val_data
 
-def train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, block_size, device,optimizer,scheduler):
+def train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, eval_interval, block_size, device,optimizer,scheduler):
     for iter in range(max_iters):
         # Evaluate periodically
         if iter % 200 == 0:
