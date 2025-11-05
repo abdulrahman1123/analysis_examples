@@ -1,4 +1,4 @@
-
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -207,18 +207,6 @@ def tokenize(text,vocab_size):
         ],
     )
 
-    # ---------------------------
-    # Example usage
-    # ---------------------------
-
-    s = "The quick brown fox jumps over the lazy dog"
-
-    encoded = tokenizer.encode(s)
-    print("Encoded IDs:", encoded.ids)
-    print("Tokens:", encoded.tokens)
-
-    decoded = tokenizer.decode(encoded.ids)
-    print("Decoded:", decoded)
 
     # ---------------------------
     # Use with your model
@@ -256,10 +244,21 @@ def train_test_split(data, train_ratio=0.9):
     return train_data, val_data
 
 
+def train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, block_size):
+    for iter in range(max_iters):
+        # Evaluate periodically
+        if iter % 100 == 0 or iter == max_iters - 1:
+            losses = estimate_loss(model, eval_iters, train_data, val_data,
+                                   batch_size, block_size)
+            print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        # Training step
+        xb, yb = get_batch(train_data, batch_size, block_size)
+        xb, yb = xb.to(device), yb.to(device)
 
-
-
-
-
-
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), clip_norm)
+        optimizer.step()
+        scheduler.step()
 

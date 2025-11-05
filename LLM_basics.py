@@ -214,7 +214,7 @@ for b in range(batch_size): # batch dimension
 
 
 # embeddings are learnt vectors, whose values represent the word's (or letter's) relationship to other words (or letteres)
-# it can be used  to find synonims, translation, classification ... etc
+# it can be used  to find synonyms, translation, classification ... etc
 # when we talk about letters, it is more about the letter's context. in other words, it represents patterns of letter usage 
 # rather than semantic meaning. for example, t & h often appear together, so their embeddings may become related
 # Embeddings are what gets 'learnt' in the context of LLM

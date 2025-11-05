@@ -20,7 +20,8 @@ from nanogpt_utils import *
 torch.manual_seed(111)
 
 
-base_dirs = ['/Users/abdelrahmansawalma/Downloads/LLMs']
+base_dirs = ['/Users/abdelrahmansawalma/Downloads/LLMs',
+             r"\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\downloads\LLMs"]
 base_dir = [item for item in base_dirs if os.path.exists(item)][0]
 
 # hyperparameters
@@ -166,12 +167,12 @@ if False:
 
 
 
-batch_size = 32
+batch_size = 64
 block_size = 256
 learning_rate = 2e-4
 n_embd = 256
-n_head = 8
-n_layer = 8
+n_head = 4
+n_layer = 4
 n_embd = (n_embd//n_head)*n_head # inside the code, head_size is calculated as n_embd//n_head, which might give an error if the result are not a full integer
 
 

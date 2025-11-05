@@ -17,7 +17,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, processors
 from tokenizers.processors import TemplateProcessing
-
+import time
 
 def get_batch(data, batch_size, block_size):
     # generate a small batch of data of inputs x and targets y
@@ -268,26 +268,44 @@ def train_test_split(data, train_ratio=0.9):
     print('train data shape: ', train_data.shape, 'val data shape:', val_data.shape)
     return train_data, val_data
 
+def train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, block_size, device,optimizer,scheduler):
+    for iter in range(max_iters):
+        # Evaluate periodically
+        if iter % 200 == 0:
+            time.sleep(10)
+        if iter % eval_interval == 0 or iter == max_iters - 1:
+            losses = estimate_loss(model, eval_iters, train_data, val_data,
+                                   batch_size, block_size)
+            print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        # Training step
+        xb, yb = get_batch(train_data, batch_size, block_size)
+        xb, yb = xb.to(device), yb.to(device)
+
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
+        optimizer.step()
+        scheduler.step()
 
 
 
 ####################
 # hyperparameters
 ####################
-batch_size = 16 # how many independent sequences will we process in parallel
-block_size = 32 # what is the maximum context length for predictions
-max_iters = 1000
-eval_interval = 100
+batch_size = 32 # how many independent sequences will we process in parallel
+block_size = 256 # what is the maximum context length for predictions
+max_iters = 10000
 learning_rate = 2e-4
-device = torch.device("cpu") # change it to mps for Mac, and Cuda if you have Nvidia graphics
-eval_iters = 200
-n_embd = 128
-n_head = 3
-n_layer = 3
-n_embd = (n_embd//n_head)*n_head # inside the code, head_size is calculated as n_embd//n_head, which might give an error if the result are not a full integer
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu") # change it to mps for Mac, and Cuda if you have Nvidia graphics
+eval_iters = 100
+eval_interval = max_iters//10
+n_embd = 256
+n_head = 4
+n_layer = 4
+n_embd = (n_embd//n_head)*n_head
 dropout = 0.1
-clip_norm = 1.0
-vocab_size = 20000
+vocab_size = 10000
 # ------------
 
 ## Download Shakespeare's work
@@ -300,7 +318,7 @@ encode,decode, tokenizer, vocab_size = tokenize(text, vocab_size)
 
 # check what it does
 encoding = encode('Greetings, My king!')
-for item in encoding:
+for item in encoding[1::]:
     print(f"{decode([item])} ----> {item}")
 
 
@@ -317,3 +335,31 @@ print(f'Train size = {train_data.shape[0]} tokens ... Validation size = {val_dat
 model = BigramLanguageModel(vocab_size, n_embd, block_size, n_head, dropout, n_layer, device).to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=get_lr_lambda(max_iters=max_iters, warmup_steps=200))
+
+
+
+# train the model
+train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, block_size,device,optimizer,scheduler)
+
+
+
+import os
+base_dir = r"\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\downloads\LLMs"
+model_name = f'model_batch{batch_size}_vocab{vocab_size}_nembed{n_embd}_block{block_size}_nhead{n_head}_n_layer{n_layer}'
+model_path = os.path.join(base_dir,f'{model_name}.pt')
+
+#save the model
+torch.save(model.state_dict(), model_path)
+print(f"Model saved as: {model_name}.pt")
+
+
+#load the model
+model = BigramLanguageModel(vocab_size, n_embd, block_size, n_head, dropout, n_layer, device)
+model.load_state_dict(torch.load(model_path, map_location=device))
+model = model.to(device)
+model.eval()
+
+prompt = "To be, or not to be "
+input_ids = torch.tensor([tokenizer.encode(prompt).ids], dtype=torch.long, device=device)
+out = model.generate(idx=input_ids, max_new_tokens=100)
+print(tokenizer.decode(out[0].tolist()))
