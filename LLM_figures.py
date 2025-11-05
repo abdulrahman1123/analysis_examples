@@ -24,7 +24,7 @@ base_dir = [item for item in base_dirs if os.path.exists(item)][0]
 
 Alice_in_Wonderland = requests.get('https://www.gutenberg.org/cache/epub/11/pg11.txt').text.replace('\r','').replace('\n\n','\n')
 Alice_in_Wonderland = Alice_in_Wonderland[Alice_in_Wonderland.find('CHAPTER I.\nDown the Rabbit-Hole')::]
-encode, decode, tokenizer, vocab_size = tokenize(Alice_in_Wonderland, 6000) # decreasing vocab size tends to give smaller and smaller tokens (to the letter level)
+encode, decode, tokenizer, vocab_size = tokenize(Alice_in_Wonderland, 3000) # decreasing vocab size tends to give smaller and smaller tokens (to the letter level)
 
 
 

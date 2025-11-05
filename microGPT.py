@@ -221,19 +221,6 @@ def tokenize(text,vocab_size):
     )
 
     # ---------------------------
-    # Example usage
-    # ---------------------------
-
-    s = "The quick brown fox jumps over the lazy dog"
-
-    encoded = tokenizer.encode(s)
-    print("Encoded IDs:", encoded.ids)
-    print("Tokens:", encoded.tokens)
-
-    decoded = tokenizer.decode(encoded.ids)
-    print("Decoded:", decoded)
-
-    # ---------------------------
     # Use with your model
     # ---------------------------
 
