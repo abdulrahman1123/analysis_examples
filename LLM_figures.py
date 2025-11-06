@@ -16,6 +16,7 @@ from matplotlib import font_manager
 import numpy as np
 import os
 from PIL import Image
+import numpy as np
 
 base_dirs = ['/Users/abdelrahmansawalma/Downloads/LLMs',
              r"\\klinik.uni-wuerzburg.de\homedir\userdata11\Sawalma_A\data\downloads\LLMs"]
@@ -199,3 +200,61 @@ image_list = [image_list[0]]*2 + image_list + [image_list[-1]]*2
 output_gif = os.path.join(fig_dir,f'animation.gif')
 create_gif_from_list(image_list, output_gif, duration=750, resize=None)
 
+
+
+# I will plot a heatmap for the affinities of words in a sentence
+
+affinities = np.array([[1, 0., 0., 0., 0.],
+                       [0.9, 0.1, 0., 0., 0.],
+                       [0.2, 0.75, 0.05, 0., 0.],
+                       [0.1, 0.1, 0.75, 0.05, 0.],
+                       [0.05, 0.05, 0.75, 0.05, 0.1]])
+
+# I want to plot them as circles where the size of the circle is proportional to the affinity
+# and the color is proportional to the affinity
+
+# Create figure and axis
+fig, ax = plt.subplots(figsize=(5.5, 5))
+
+# Get matrix dimensions
+n_rows, n_cols = affinities.shape
+
+# Create coordinate grid
+x_positions = np.arange(n_cols)
+y_positions = np.arange(n_rows)
+x, y = np.meshgrid(x_positions, y_positions)
+
+# Flatten the arrays for scatter plot
+x_flat = x.flatten()
+y_flat = y.flatten()
+affinities_flat = affinities.flatten()
+
+# Filter out zero values to avoid plotting tiny circles
+mask = affinities_flat > 0
+x_flat = x_flat[mask]
+y_flat = y_flat[mask]
+affinities_flat = affinities_flat[mask]
+
+# Create scatter plot with size and color proportional to affinity
+scatter = ax.scatter(x_flat, y_flat,
+                    s=affinities_flat * 2000,  # Scale size
+                    c=affinities_flat,         # Color by affinity
+                    cmap='RdBu',            # Color map
+                    alpha=0.7,                 # Transparency
+                    edgecolors='black',        # Circle borders
+                    linewidth=1)
+
+
+# Set labels and title
+ax.set_xlabel('', fontsize=12)
+ax.set_ylabel('', fontsize=12)
+ax.set_title('Word Affinities', fontsize=30, fontfamily = 'Calibri')
+ax.set_xlim(-0.5,4.5)
+ax.set_ylim(-0.5,4.5)
+# Set grid
+ax.grid(True, alpha=0.)
+ax.set_xticks(np.arange(n_cols),['The','animals','cross','the','street'], fontsize = 20, fontfamily = 'Calibri')
+ax.set_yticks(np.arange(n_rows),['The','animals','cross','the','street'], fontsize = 20, fontfamily = 'Calibri')
+plt.tight_layout()
+plt.show()
+plt.savefig(os.path.join(os.path.join(base_dir,'figures'),'affinity_matrix.svg'))

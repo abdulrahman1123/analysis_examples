@@ -70,6 +70,8 @@ class Head(nn.Module):
 
     def forward(self, x):
         B,T,C = x.shape
+        #Note: this structure is known as self-attention because the key and query are both derived from the same input x
+        # There are other types of attention, such as cross attention, but we will not get into those now
 
         # key is "what do I contain" and the query is "what do I need" ... whenever the dot-product of the query and
         # all the keys of the other tokens, when the key of token x and the query of token y "align", then they would have
@@ -91,12 +93,18 @@ class Head(nn.Module):
 
         # perform the weighted aggregation of the values
         # v here is the value that will get aggregated for a particular token, given its key and query
+        # It can be understood as the value the token will give, if other tokens are interested in it
         v = self.value(x) # (B,T,C)
         out = wei @ v # (B, T, T) @ (B, T, C) -> (B, T, C)
         return out
 
 class MultiHeadAttention(nn.Module):
     """ multiple heads of self-attention in parallel """
+    # different heads will learn different patterns. For example, one head might learn about the subject of the sentence,
+    # another might learn about the object, and another might learn about the verb.
+    # Different layers, on the other hand, will learn different levels of abstraction.
+    # The first layer might learn about the individual words, the second layer might learn about the phrases,
+    # and the third layer might learn about the sentences.
 
     def __init__(self, num_heads, head_size,n_embd,block_size,dropout):
         super().__init__()
