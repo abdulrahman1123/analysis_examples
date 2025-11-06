@@ -322,8 +322,8 @@ def plot_line_tokens(text, ax, tokenizer, colors = ['#e6f3ff', '#fff0e6', '#e6ff
 def plot_sentence_tokens(text,tokenizer):
     fig, ax = plt.subplots( figsize=(7,1.2))
     max_x = plot_line_tokens(text, ax, tokenizer, spacing = 0.05)
-    ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, fontfamily='Calibri', weight='bold')
-    ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', fontfamily='Calibri', weight='bold')
+    ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, weight='bold')
+    ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', weight='bold')
     ax.set_xlim(-0.7, max_x + 0.1)
     ax.set_ylim(-0.1, 1.5)
     ax.set_aspect(0.6)
