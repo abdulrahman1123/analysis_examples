@@ -10,14 +10,16 @@ import requests
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, processors
 import platform
 from tokenizers.processors import TemplateProcessing
-
-
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders, processors
 from tokenizers.processors import TemplateProcessing
 import time
+import matplotlib.patches as patches
+
 
 def get_batch(data, batch_size, block_size):
     # generate a small batch of data of inputs x and targets y
@@ -274,3 +276,49 @@ def train_model(model, max_iters, eval_iters, train_data, val_data, batch_size, 
         scheduler.step()
 
 
+def tkn_pos_finder(text,tokenizer, spacing = 0.05):
+    '''
+    returns the positions of tokens in a sentence, as well as the tokens and token IDs
+    '''
+    text = ' '.join(text.split(' ')[0:10]) #make sure there is no more than 10 words
+    encoded = tokenizer.encode(text)
+    good_inds = [i for i in range(len(encoded.tokens)) if encoded.tokens[i] not in ['<EOS>','<BOS>']]
+    token_ids = np.array(encoded.ids)[good_inds]
+    tokens = [tokenizer.decode([item]) for item in token_ids]
+
+    x_pos = [0]+np.cumsum([len(token) * 0.12+spacing for token in tokens]).tolist()
+    x_widths = [x_pos[i+1] - x_pos[i]-spacing for i in range(len(x_pos)-1)]
+    x_pos = x_pos[0:-1]
+    return tokens, token_ids, x_pos, x_widths
+
+
+def plot_line_tokens(text, ax, colors = ['#e6f3ff', '#fff0e6', '#e6ffe6', '#f0e6ff', '#fffae6'],
+                     y_height=0.8, plot_ids = True, y_pos=0, spacing = 0):
+    tokens, token_ids, x_pos, x_widths = tkn_pos_finder(text, spacing=spacing)
+
+    for i, (token, token_id,x_p, x_w) in enumerate(zip(tokens, token_ids, x_pos,x_widths)):
+        rect = patches.Rectangle((x_p, y_pos), x_w, y_height,linewidth=1.5, edgecolor='black',
+                                 facecolor=colors[i % len(colors)], alpha=0.7)
+        ax.add_patch(rect)
+
+        # Add token text
+        ax.text(x_p + x_w / 2, y_pos + y_height / 2,token, ha='center', va='center', fontsize=10,
+                fontfamily='monospace', weight='bold')
+
+        if plot_ids:
+            ax.text(x_p + x_w / 2, y_pos - 0.2, f'{token_id}', ha='center', va='center', fontsize=8,
+                    fontfamily='monospace', color='gray')
+    max_x = x_p + x_w # to find the maximum x position for that line
+    return max_x
+
+def plot_sentence_tokens(text):
+    fig, ax = plt.subplots( figsize=(7,1.5))
+    max_x = plot_line_tokens(text, ax, spacing = 0.05)
+    ax.set_title('Tokenization', fontsize=18, fontfamily='Calibri')
+    ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, fontfamily='Calibri', weight='bold')
+    ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', fontfamily='Calibri', weight='bold')
+    ax.set_xlim(-0.7, max_x + 0.1)
+    ax.set_ylim(-0.1, 1.5)
+    ax.set_aspect(0.6)
+    ax.axis('off')  # Turn off axes
+    plt.tight_layout()

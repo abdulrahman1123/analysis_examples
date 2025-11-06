@@ -69,18 +69,20 @@ def plot_line_tokens(text, ax, colors = ['#e6f3ff', '#fff0e6', '#e6ffe6', '#f0e6
     max_x = x_p + x_w # to find the maximum x position for that line
     return max_x
 
-text = 'Alice in Wonderland. Down the rabbit hole'
-fig, ax = plt.subplots( figsize=(7,1.5))
-max_x = plot_line_tokens(text, ax, spacing = 0.05)
-ax.set_title('Tokenization', fontsize=18, fontfamily='Calibri')
-ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, fontfamily='Calibri', weight='bold')
-ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', fontfamily='Calibri', weight='bold')
-ax.set_xlim(-0.7, max_x + 0.1)
-ax.set_ylim(-0.1, 1.5)
-ax.set_aspect(0.6)
-ax.axis('off')  # Turn off axes
-plt.tight_layout()
-fig.savefig(os.path.join(os.path.join(base_dir,"figures"), 'tokenization.png'), dpi = 300)
+def plot_sentence_tokens(text):
+    text = 'Alice in Wonderland. Down the rabbit hole'
+    fig, ax = plt.subplots( figsize=(7,1.5))
+    max_x = plot_line_tokens(text, ax, spacing = 0.05)
+    ax.set_title('Tokenization', fontsize=18, fontfamily='Calibri')
+    ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, fontfamily='Calibri', weight='bold')
+    ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', fontfamily='Calibri', weight='bold')
+    ax.set_xlim(-0.7, max_x + 0.1)
+    ax.set_ylim(-0.1, 1.5)
+    ax.set_aspect(0.6)
+    ax.axis('off')  # Turn off axes
+    plt.tight_layout()
+
+plt.savefig(os.path.join(os.path.join(base_dir,"figures"), 'tokenization.png'), dpi = 300)
 
 # plot the progress of prediction
 texts = 'To be, or not to be. That is the question.\nWhether it is nobler in the mind to suffer.\nThe slings and arrows of outrageous fortune.\nOr to take arms against a sea of troubles.'
