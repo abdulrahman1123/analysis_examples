@@ -280,7 +280,7 @@ def tkn_pos_finder(text,tokenizer, spacing = 0.05):
     '''
     returns the positions of tokens in a sentence, as well as the tokens and token IDs
     '''
-    text = ' '.join(text.split(' ')[0:10]) #make sure there is no more than 10 words
+    text = ' '.join(text.split(' ')[0:15]) #make sure there is no more than 10 words
     encoded = tokenizer.encode(text)
     good_inds = [i for i in range(len(encoded.tokens)) if encoded.tokens[i] not in ['<EOS>','<BOS>']]
     token_ids = np.array(encoded.ids)[good_inds]
@@ -312,7 +312,7 @@ def plot_line_tokens(text, ax, tokenizer, colors = ['#e6f3ff', '#fff0e6', '#e6ff
     return max_x
 
 def plot_sentence_tokens(text,tokenizer):
-    fig, ax = plt.subplots( figsize=(7,1.5))
+    fig, ax = plt.subplots( figsize=(7,1.2))
     max_x = plot_line_tokens(text, ax, tokenizer, spacing = 0.05)
     ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, fontfamily='Calibri', weight='bold')
     ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', fontfamily='Calibri', weight='bold')
