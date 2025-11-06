@@ -292,9 +292,9 @@ def tkn_pos_finder(text,tokenizer, spacing = 0.05):
     return tokens, token_ids, x_pos, x_widths
 
 
-def plot_line_tokens(text, ax, colors = ['#e6f3ff', '#fff0e6', '#e6ffe6', '#f0e6ff', '#fffae6'],
+def plot_line_tokens(text, ax, tokenizer, colors = ['#e6f3ff', '#fff0e6', '#e6ffe6', '#f0e6ff', '#fffae6'],
                      y_height=0.8, plot_ids = True, y_pos=0, spacing = 0):
-    tokens, token_ids, x_pos, x_widths = tkn_pos_finder(text, spacing=spacing)
+    tokens, token_ids, x_pos, x_widths = tkn_pos_finder(text, tokenizer, spacing=spacing)
 
     for i, (token, token_id,x_p, x_w) in enumerate(zip(tokens, token_ids, x_pos,x_widths)):
         rect = patches.Rectangle((x_p, y_pos), x_w, y_height,linewidth=1.5, edgecolor='black',
@@ -311,10 +311,9 @@ def plot_line_tokens(text, ax, colors = ['#e6f3ff', '#fff0e6', '#e6ffe6', '#f0e6
     max_x = x_p + x_w # to find the maximum x position for that line
     return max_x
 
-def plot_sentence_tokens(text):
+def plot_sentence_tokens(text,tokenizer):
     fig, ax = plt.subplots( figsize=(7,1.5))
-    max_x = plot_line_tokens(text, ax, spacing = 0.05)
-    ax.set_title('Tokenization', fontsize=18, fontfamily='Calibri')
+    max_x = plot_line_tokens(text, ax, tokenizer, spacing = 0.05)
     ax.text(-0.1, 0.4, 'Tokens: ', ha='right', va='center', fontsize=14, fontfamily='Calibri', weight='bold')
     ax.text(-0.1, -0.2 , 'IDs: ', ha='right', va='center', fontsize=14, color ='grey', fontfamily='Calibri', weight='bold')
     ax.set_xlim(-0.7, max_x + 0.1)
