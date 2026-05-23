@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Night Light & Noise</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Pushes content to the bottom */
+            align-items: center;
+        }
+
+        /* Full screen night light */
+        #light-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ff9933;
+            opacity: 0.4;
+            z-index: 1;
+            transition: background-color 0.1s ease;
+        }
+
+        /* Streamlined control panel docked at the bottom */
+        #control-panel {
+            position: relative;
+            z-index: 2;
+            background: rgba(15, 15, 15, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 16px 20px;
+            border-radius: 20px;
+            width: 92%;
+            max-width: 340px;
+            margin-bottom: 20px; /* Gap from the bottom edge of phone screen */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Compact side-by-side rows */
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            min-width: 75px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #222;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        /* Small color swatch */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 50px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+
+        /* Styled dropdown selection for timer */
+        select {
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Compact, low-profile action button */
+        .audio-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ffffff;
+            color: #000000;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .audio-btn.playing {
+            background-color: #ff3b30;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="light-panel"></div>
+
+    <main id="control-panel">
+        <!-- Row 1: Color Picker -->
+        <div class="control-row">
+            <label for="color-picker">Color</label>
+            <input type="color" id="color-picker" value="#ff9933">
+        </div>
+
+        <!-- Row 2: Brightness -->
+        <div class="control-row">
+            <label for="brightness-slider">Light</label>
+            <input type="range" id="brightness-slider" min="0.05" max="1" step="0.01" value="0.4">
+        </div>
+
+        <!-- Row 3: Volume -->
+        <div class="control-row">
+            <label for="volume-slider">Volume</label>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5">
+        </div>
+
+        <!-- Row 4: Sleep Timer -->
+        <div class="control-row">
+            <label for="timer-select">Timer</label>
+            <select id="timer-select">
+                <option value="0">Continuous</option>
+                <option value="15">15 Minutes</option>
+                <option value="30">30 Minutes</option>
+                <option value="45">45 Minutes</option>
+                <option value="60">1 Hour</option>
+            </select>
+        </div>
+
+        <button id="audio-toggle" class="audio-btn">Start</button>
+    </main>
+
+    <script>
+        const lightPanel = document.getElementById('light-panel');
+        const colorPicker = document.getElementById('color-picker');
+        const brightnessSlider = document.getElementById('brightness-slider');
+        const volumeSlider = document.getElementById('volume-slider');
+        const timerSelect = document.getElementById('timer-select');
+        const audioToggle = document.getElementById('audio-toggle');
+
+        const noiseAudio = new Audio('white-noise.mp3');
+        noiseAudio.loop = true;
+        noiseAudio.volume = volumeSlider.value;
+
+        let wakeLock = null;
+        let timerCountdown = null;
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => { wakeLock = null; });
+                } catch (err) {
+                    console.error(`Wake Lock failed: ${err.message}`);
+                }
+            }
+        }
+
+        // Live Controls
+        colorPicker.addEventListener('input', (e) => lightPanel.style.backgroundColor = e.target.value);
+        brightnessSlider.addEventListener('input', (e) => lightPanel.style.opacity = e.target.value);
+        volumeSlider.addEventListener('input', (e) => noiseAudio.volume = e.target.value);
+
+        // Turn everything off cleanly
+        async function stopMachine() {
+            noiseAudio.pause();
+            audioToggle.textContent = "Start";
+            audioToggle.classList.remove('playing');
+            
+            if (timerCountdown) {
+                clearInterval(timerCountdown);
+                timerCountdown = null;
+            }
+            timerSelect.disabled = false;
+            
+            if (wakeLock !== null) {
+                await wakeLock.release();
+                wakeLock = null;
+            }
+        }
+
+        // Action Button
+        audioToggle.addEventListener('click', async () => {
+            if (noiseAudio.paused) {
+                noiseAudio.play()
+                    .then(async () => {
+                        audioToggle.textContent = "Stop";
+                        audioToggle.classList.add('playing');
+                        await requestWakeLock();
+
+                        // Set up timer if option selected
+                        const minutes = parseInt(timerSelect.value);
+                        if (minutes > 0) {
+                            timerSelect.disabled = true; // Lock dropdown while running
+                            let msRemaining = minutes * 60 * 1000;
+                            
+                            timerCountdown = setInterval(() => {
+                                msRemaining -= 1000;
+                                if (msRemaining <= 0) {
+                                    stopMachine();
+                                }
+                            }, 1000);
+                        }
+                    })
+                    .catch(error => {
+                        alert("Make sure 'white-noise.mp3' is inside your app folder!");
+                    });
+            } else {
+                await stopMachine();
+            }
+        });
+
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
+    </script>
+</body>
+</html>
